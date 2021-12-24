@@ -10,13 +10,14 @@
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
 
-<script src="../../lib/gl-matrix-min.js"></script>
-<script type="text/javascript" src="../../lib/camera.js"></script>
-<script type="text/javascript" src="../../lib/shaders.js"></script>
-<script type="text/javascript" src="../../lib/lights.js"></script>
-<script type="text/javascript" src="../../lib/objects.js"></script>
-<script type="text/javascript" src="../../lib/bump_mapping.js"></script>
-<script type="text/javascript" src="../../lib/textures.js"></script>
+<script src="../lib/gl-matrix-min.js"></script>
+<script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../lib/lights.js"></script>
+<script type="text/javascript" src="../lib/objects.js"></script>
+<script type="text/javascript" src="../lib/bump_mapping.js"></script>
+<script type="text/javascript" src="../lib/textures.js"></script>
+<script type="text/javascript" src="../lib/cubemap.js"></script>
 <script>
     async function main() {
         // Boilerplate code
@@ -30,32 +31,35 @@
         //gl.enable(gl.CULL_FACE); // cull hidden faces behind normals!
 
         // Compile a shader program from the sources of "common_shader"
-        const shader_common = await make_shader(gl, 'common_shader', '../../shaders');
+        const shader_common = await make_shader(gl, 'common_shader', '../shaders');
+
+        // Compile a shader program from the sources of "cubemap_shader"
+        const shader_cubemap = await make_shader(gl, 'cubemap_shader', '../shaders');
+
+        // Create the cubemap
+        const cubemap = await make_cubemap(gl, '../objects/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
-        const cube = await load_obj('../objects/cube.obj');
-        const plane = await load_obj('../objects/plane.obj');
-        const sphere3 = await load_obj('../objects/torus.obj');
+        const cube = await load_obj('objects/cube.obj');
+        const plane = await load_obj('objects/plane.obj');
+        const torus = await load_obj('objects/torus.obj');
 
         // Load bump map
-        const bump_map_cube = await load_texture(gl, '../textures/BumpMapCube.png');
-        const bump_map = await load_texture(gl, '../textures/BumpMap.png');
+        const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
+        const bump_map = await load_texture(gl, 'textures/BumpMap.png');
 
         // Load textures
-        const texture_cube = await load_texture(gl, '../textures/TextureCube.png');
+        const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
 
         // Asynchronous call, we waited till the object was ready
         // Make the buffer and the functions to draw the object:
         const o1_mesh = await make_object(gl, cube, texture_cube, bump_map_cube);
         const o2_mesh = await make_object(gl, plane, null, bump_map);
-        const o3_mesh = await make_object(gl, sphere3);
+        const o3_mesh = await make_object(gl, torus);
 
-        // Translate the spheres
-        o1_mesh.model = glMatrix.mat4.rotateX(o1_mesh.model,o1_mesh.model, Math.PI/2.0);
+        // Translate the objects
         o1_mesh.model = glMatrix.mat4.translate(o1_mesh.model,o1_mesh.model,
             glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
-        o2_mesh.model = glMatrix.mat4.rotateX(o2_mesh.model,o2_mesh.model, Math.PI/2.0);
-        //o3_mesh.model = glMatrix.mat4.rotateX(o3_mesh.model,o3_mesh.model, Math.PI/2.0);
         o3_mesh.model = glMatrix.mat4.translate(o3_mesh.model,o3_mesh.model,
             glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
 
@@ -64,26 +68,26 @@
         const lights_set = make_lights_set(gl);
         // Light 1
         lights_set.add_light(
-            glMatrix.vec3.fromValues(3.0, 2.0, -6.0),
+            glMatrix.vec3.fromValues(3.0, -6.0, -2.0),
             glMatrix.vec3.fromValues(0.9, 0.1, 0.2),
             1.0
         );
         // Light 2
         lights_set.add_light(
-            glMatrix.vec3.fromValues(-4.0, 6.0, 0.0),
+            glMatrix.vec3.fromValues(-4.0, 0.0, -6.0),
             glMatrix.vec3.fromValues(0.1, 0.2, 0.9),
             1.0
         );
         // Light 3
         lights_set.add_light(
-            glMatrix.vec3.fromValues(-2.0, 5.0, 6.0),
+            glMatrix.vec3.fromValues(-2.0, 6.0, -5.0),
             glMatrix.vec3.fromValues(0.2, 1.0, 0.1),
             0.5
         );
 
         // Camera initial values
         const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
-        const world_up      = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
+        const world_up      = glMatrix.vec3.fromValues(0.0, 1.0, 0.0);
         const zenith        = 90.0;
         const azimuth       = 90.0;
         const radius        = 10.0;
@@ -104,6 +108,20 @@
             //Draw loop
             gl.clearColor(0.2, 0.2, 0.2, 1);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            /************************
+             **   Cubemap shader   **
+             ************************/
+
+            // Draw the cubemap first (using shader_cubemap)
+            shader_cubemap.use();
+            shader_cubemap.set_projection_uniform(projection);
+            shader_cubemap.set_view_uniform(camera.get_view_matrix());
+            cubemap.activate(shader_cubemap);
+
+            /***********************
+             **   Common shader   **
+             ***********************/
 
             // We use the "normal shader"
             shader_common.use();
