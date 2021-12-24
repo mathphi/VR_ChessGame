@@ -63,27 +63,35 @@
         o3_mesh.model = glMatrix.mat4.translate(o3_mesh.model,o3_mesh.model,
             glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
 
+        const spotlight_pos = glMatrix.vec3.fromValues(1.5, 10.0, 0.0);
+        const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
+
         // We define a light set (set of lights with some properties)
         // WARNING: shader code designed for max 10 lights !
         const lights_set = make_lights_set(gl);
         // Light 1
-        lights_set.add_light(
+        const red_light = lights_set.add_point_light(
             glMatrix.vec3.fromValues(3.0, -6.0, -2.0),
-            glMatrix.vec3.fromValues(0.9, 0.1, 0.2),
-            1.0
+            glMatrix.vec3.fromValues(0.9, 0.1, 0.2)
         );
         // Light 2
-        lights_set.add_light(
+        const blue_light = lights_set.add_point_light(
             glMatrix.vec3.fromValues(-4.0, 0.0, -6.0),
-            glMatrix.vec3.fromValues(0.1, 0.2, 0.9),
-            1.0
+            glMatrix.vec3.fromValues(0.1, 0.2, 0.9)
         );
         // Light 3
-        lights_set.add_light(
+        const green_light = lights_set.add_point_light(
             glMatrix.vec3.fromValues(-2.0, 6.0, -5.0),
-            glMatrix.vec3.fromValues(0.2, 1.0, 0.1),
-            0.5
+            glMatrix.vec3.fromValues(0.1, 0.45, 0.05)
         );
+        // Spotlight
+        const spotlight = lights_set.add_spot_light(
+            spotlight_pos,
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            spotlight_dir,
+            2,
+            8
+        )
 
         // Camera initial values
         const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
@@ -104,10 +112,30 @@
         // We need the camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
+        // Just for the test
+        let green_light_removed = false;
+
         function animate(time) {
             //Draw loop
             gl.clearColor(0.2, 0.2, 0.2, 1);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            // Animate the spotlight
+            const light_int = ((time / 1000.0) % 5.0) / 5.0;
+            lights_set.set_light_color(spotlight, glMatrix.vec3.fromValues(
+                light_int, light_int, light_int
+            ));
+
+            const light_angle = ((((time / 1000.0) % 4.0) / 4.0 * 5.0) - 2.5) * Math.PI / 180.0 ;
+            glMatrix.vec3.set(spotlight_dir, 0.0, -1.0, 0.0);
+            glMatrix.vec3.rotateZ(spotlight_dir, spotlight_dir, spotlight_pos, light_angle);
+            lights_set.set_light_direction(spotlight, spotlight_dir);
+
+            // Remove the green light after 10 seconds
+            if (time > 10000 && !green_light_removed) {
+                lights_set.remove_light(green_light);
+                green_light_removed = true;
+            }
 
             /************************
              **   Cubemap shader   **
