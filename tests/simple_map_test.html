@@ -15,6 +15,7 @@
 <script type="text/javascript" src="../lib/shaders.js"></script>
 <script type="text/javascript" src="../lib/lights.js"></script>
 <script type="text/javascript" src="../lib/objects.js"></script>
+<script type="text/javascript" src="../lib/material.js"></script>
 <script type="text/javascript" src="../lib/bump_mapping.js"></script>
 <script type="text/javascript" src="../lib/textures.js"></script>
 <script type="text/javascript" src="../lib/cubemap.js"></script>
@@ -51,16 +52,28 @@
         // Load textures
         const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
 
+        // Metal material visual properties
+        const material_metal = make_material(gl);
+        material_metal.set_reflection(0.8);
+        material_metal.set_specular(100.0, 1.0);
+
         // Asynchronous call, we waited till the object was ready
         // Make the buffer and the functions to draw the object:
-        const o1_mesh = await make_object(gl, cube, texture_cube, bump_map_cube);
-        const o2_mesh = await make_object(gl, plane, null, bump_map);
-        const o3_mesh = await make_object(gl, torus);
+        const object1 = await make_object(gl, cube, texture_cube, bump_map_cube);
+        const object2 = await make_object(gl, plane, null, bump_map);
+        const object3 = await make_object(gl, torus, null, null, material_metal);
+
+        // Set cube material properties
+        object1.material.set_specular(100.0, 0.6);
+        object1.material.set_refraction(0.3, 1.50);
+
+        // Make the plane material yellow
+        object2.material.set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
-        o1_mesh.model = glMatrix.mat4.translate(o1_mesh.model,o1_mesh.model,
+        object1.model = glMatrix.mat4.translate(object1.model,object1.model,
             glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
-        o3_mesh.model = glMatrix.mat4.translate(o3_mesh.model,o3_mesh.model,
+        object3.model = glMatrix.mat4.translate(object3.model,object3.model,
             glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
 
         const spotlight_pos = glMatrix.vec3.fromValues(1.5, 10.0, 0.0);
@@ -131,8 +144,8 @@
             glMatrix.vec3.rotateZ(spotlight_dir, spotlight_dir, spotlight_pos, light_angle);
             lights_set.set_light_direction(spotlight, spotlight_dir);
 
-            // Remove the green light after 10 seconds
-            if (time > 10000 && !green_light_removed) {
+            // Remove the green light after 11 seconds
+            if (time > 11000 && !green_light_removed) {
                 lights_set.remove_light(green_light);
                 green_light_removed = true;
             }
@@ -156,21 +169,24 @@
             shader_common.set_projection_uniform(projection);
             shader_common.set_view_uniform(camera.get_view_matrix());
 
+            // Give cubemap textures (for reflection/refraction)
+            cubemap.activate_texture(shader_common);
+
             // Activate lights in shader
             lights_set.activate(shader_common);
 
             // Add the viewer position
             gl.uniform3fv(u_cam_pos, camera.get_position());
 
-            o1_mesh.activate(shader_common);
-            o1_mesh.draw();
+            object1.activate(shader_common);
+            object1.draw();
 
             // We use the same shader to draw the second sphere
-            o2_mesh.activate(shader_common);
-            o2_mesh.draw();
+            object2.activate(shader_common);
+            object2.draw();
 
-            o3_mesh.activate(shader_common);
-            o3_mesh.draw();
+            object3.activate(shader_common);
+            object3.draw();
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
