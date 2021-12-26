@@ -156,6 +156,11 @@
             glMatrix.vec3.rotateZ(spotlight_dir, spotlight_dir, spotlight_pos, light_angle);
             lights_set.set_light_direction(spotlight2, spotlight_dir);
 
+            const light_dist = ((time / 1000.0) % 10.0) / 10.0 * 30.0;
+            const spot_pos = glMatrix.vec3.create();
+            glMatrix.vec3.add(spot_pos, spotlight_pos, glMatrix.vec3.fromValues(0.0, light_dist, 0.0));
+            lights_set.set_light_position(spotlight2, spot_pos);
+
             // Remove the green light after 11 seconds
             if (time > 22000 && !green_light_removed) {
                 lights_set.remove_light(green_light);

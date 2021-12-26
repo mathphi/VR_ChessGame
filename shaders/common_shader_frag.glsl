@@ -106,8 +106,12 @@ void main() {
             );
         }
 
-        light_diff += diffusion * light_color * direction_att;
-        light_spec += specular * light_color * direction_att;
+        // Distance between fragment and light
+        float dist = distance(light_position, v_frag_coord);
+        float dist_att = 1.0 / (1.0 + 0.022*dist + 0.0019*pow(dist, 2.0));
+
+        light_diff += diffusion * light_color * direction_att * dist_att;
+        light_spec += specular * light_color * direction_att * dist_att;
     }
 
     // Intrinsic object color
