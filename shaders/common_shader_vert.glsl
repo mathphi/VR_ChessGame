@@ -4,6 +4,7 @@ attribute vec3 a_normal;
 attribute vec3 a_tangent;
 attribute vec3 a_bitangent;
 
+// Mesh data
 varying vec3 v_normal;
 varying vec3 v_frag_coord;
 varying mat3 v_TBN;

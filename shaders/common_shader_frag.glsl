@@ -3,6 +3,8 @@
 #define LIGHT_TYPE_SPOT  1
 
 precision mediump float;
+
+// Mesh data
 varying vec3 v_normal;
 varying vec3 v_frag_coord;
 varying mat3 v_TBN;
@@ -17,16 +19,16 @@ uniform vec3 u_lights_direction[MAX_LIGHTS_COUNT];
 uniform float u_lights_in_angle[MAX_LIGHTS_COUNT];
 uniform float u_lights_out_angle[MAX_LIGHTS_COUNT];
 
-// Camera position
-uniform vec3 u_cam_pos;
-
-// Material properties uniforms
+// Material properties
 uniform vec3 u_object_color;
+uniform float u_specular_exp;
+uniform float u_specular_strength;
 uniform float u_reflect_strength;
 uniform float u_refract_strength;
 uniform float u_refract_index;
-uniform float u_specular_exp;
-uniform float u_specular_strength;
+
+// Camera position
+uniform vec3 u_cam_pos;
 
 // Textures and bumpmap uniforms
 uniform bool u_has_texture;
@@ -57,7 +59,8 @@ void main() {
     float ambient = 0.1;
 
     // Light contribution
-    vec3 light = vec3(0);
+    vec3 light_diff = vec3(0);  // Diffusion
+    vec3 light_spec = vec3(0);  // Specular
 
     // Ray from camera to object
     vec3 camera_ray = normalize(v_frag_coord - u_cam_pos);
@@ -103,7 +106,8 @@ void main() {
             );
         }
 
-        light += (specular + diffusion) * light_color * direction_att;
+        light_diff += diffusion * light_color * direction_att;
+        light_spec += specular * light_color * direction_att;
     }
 
     // Intrinsic object color
@@ -115,7 +119,7 @@ void main() {
     }
 
     // Total fragment color depends on light
-    vec4 total_color = object_color * vec4(ambient + light, 1.0);
+    vec4 total_color = object_color * vec4(ambient + light_diff, 1.0) + vec4(light_spec, 1.0);
 
     // Reflection of cubemap on object
     if (u_reflect_strength > 0.0) {
