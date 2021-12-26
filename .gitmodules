@@ -1,0 +1,6 @@
+[submodule "3rdparty/ammo.js"]
+	path = 3rdparty/ammo.js
+	url = https://github.com/kripken/ammo.js
+[submodule "3rdparty/chess.js"]
+	path = 3rdparty/chess.js
+	url = https://github.com/jhlywa/chess.js/

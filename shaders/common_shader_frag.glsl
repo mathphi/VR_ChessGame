@@ -39,7 +39,7 @@ uniform samplerCube u_cubemap;
 
 float strict_map(float value, float min_x, float max_x, float min_y, float max_y) {
     return max(min_y, min(max_y,
-    min_y + (value - min_x) * (max_y - min_y) / (max_x - min_x)
+        min_y + (value - min_x) * (max_y - min_y) / (max_x - min_x)
     ));
 }
 
@@ -100,9 +100,9 @@ void main() {
             float angle = acos(dot(-L, light_direction));
 
             direction_att = strict_map(
-            angle,
-            light_outer_angle, light_inner_angle,
-            0.0, 1.0
+                angle,
+                light_outer_angle, light_inner_angle,
+                0.0, 1.0
             );
         }
 
