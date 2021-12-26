@@ -43,6 +43,7 @@
         // loading the object from a file
         const cube = await load_obj('objects/cube.obj');
         const plane = await load_obj('objects/plane.obj');
+        const torus = await load_obj('objects/torus.obj');
         const chessboard = await load_obj('objects/Chessboard.obj');
 
         // Load bump map
@@ -61,22 +62,25 @@
         // Make the buffer and the functions to draw the object:
         const object1 = await make_object(gl, cube, texture_cube, bump_map_cube);
         const object2 = await make_object(gl, plane, null, bump_map);
-        const object3 = await make_object(gl, chessboard);
+        const object3 = await make_object(gl, torus, null, null, material_metal);
+        const object4 = await make_object(gl, chessboard);
 
         // Set cube material properties
-        object1.materials[0].set_specular(100.0, 0.6);
-        object1.materials[0].set_refraction(0.3, 1.50);
+        object1.materials['default'].set_specular(100.0, 0.6);
+        object1.materials['default'].set_refraction(0.3, 1.50);
 
         // Make the plane material yellow
-        object2.materials[0].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
+        object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
         object1.model = glMatrix.mat4.translate(object1.model,object1.model,
             glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
         object3.model = glMatrix.mat4.translate(object3.model,object3.model,
-            glMatrix.vec3.fromValues(-2.3, -4.0, 0.0));
+            glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
+        object4.model = glMatrix.mat4.translate(object4.model,object4.model,
+            glMatrix.vec3.fromValues(0.0, -4.0, 0.0));
 
-        const spotlight_pos = glMatrix.vec3.fromValues(1.5, 10.0, 0.0);
+        const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
         const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
 
         // We define a light set (set of lights with some properties)
@@ -98,7 +102,15 @@
             glMatrix.vec3.fromValues(0.1, 0.45, 0.05)
         );
         // Spotlight
-        const spotlight = lights_set.add_spot_light(
+        const spotlight1 = lights_set.add_spot_light(
+            glMatrix.vec3.fromValues(1.5, 10.0, 0.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
+            2,
+            8
+        )
+        // Spotlight
+        const spotlight2 = lights_set.add_spot_light(
             spotlight_pos,
             glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
             spotlight_dir,
@@ -135,14 +147,14 @@
 
             // Animate the spotlight
             const light_int = ((time / 1000.0) % 5.0) / 5.0;
-            lights_set.set_light_color(spotlight, glMatrix.vec3.fromValues(
+            lights_set.set_light_color(spotlight1, glMatrix.vec3.fromValues(
                 light_int, light_int, light_int
             ));
 
-            const light_angle = ((((time / 1000.0) % 4.0) / 4.0 * 5.0) - 2.5) * Math.PI / 180.0 ;
+            const light_angle = ((((time / 1000.0) % 4.0) / 4.0 * 50.0) - 25.0) * Math.PI / 180.0 ;
             glMatrix.vec3.set(spotlight_dir, 0.0, -1.0, 0.0);
             glMatrix.vec3.rotateZ(spotlight_dir, spotlight_dir, spotlight_pos, light_angle);
-            lights_set.set_light_direction(spotlight, spotlight_dir);
+            lights_set.set_light_direction(spotlight2, spotlight_dir);
 
             // Remove the green light after 11 seconds
             if (time > 22000 && !green_light_removed) {
@@ -158,7 +170,7 @@
             shader_cubemap.use();
             shader_cubemap.set_projection_uniform(projection);
             shader_cubemap.set_view_uniform(camera.get_view_matrix());
-            cubemap.activate(shader_cubemap);
+            cubemap.draw(shader_cubemap);
 
             /***********************
              **   Common shader   **
@@ -170,7 +182,7 @@
             shader_common.set_view_uniform(camera.get_view_matrix());
 
             // Give cubemap textures (for reflection/refraction)
-            cubemap.activate_texture(shader_common);
+            cubemap.activate(shader_common);
 
             // Activate lights in shader
             lights_set.activate(shader_common);
@@ -181,6 +193,7 @@
             object1.draw(shader_common);
             object2.draw(shader_common);
             object3.draw(shader_common);
+            object4.draw(shader_common);
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
