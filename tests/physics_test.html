@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <title>Physics test - VR ChessGame</title>
 </head>
-
 <body>
 <canvas id="webgl_canvas" width="800" height="600"></canvas>
 <div id="fps"></div>
@@ -19,13 +18,18 @@
 <script type="text/javascript" src="../lib/bump_mapping.js"></script>
 <script type="text/javascript" src="../lib/textures.js"></script>
 <script type="text/javascript" src="../lib/cubemap.js"></script>
+<script type="text/javascript" src="../lib/physics.js"></script>
+<script type="text/javascript" src="../3rdparty/ammo.js/builds/ammo.js"></script>
 <script>
     async function main() {
-        // Boilerplate code
+        // Initialize GL and canvas
         const canvas = document.getElementById('webgl_canvas');
         const c_width = canvas.width;
         const c_height = canvas.height;
         const gl = canvas.getContext('webgl');
+
+        // Initialize Physics engine
+        const physics_engine = setupPhysics();
 
         // Enable tests for better rendering
         gl.enable(gl.DEPTH_TEST);
@@ -140,6 +144,57 @@
         // Just for the test
         let green_light_removed = false;
 
+
+        const object1_phys = physics_engine.register_object(object1, 0);
+        console.log(object1_phys);
+
+        canvas.addEventListener("mousedown", function(event) {
+            function get_mouse_pos(canvas, evt) {
+                const rect = canvas.getBoundingClientRect();
+                return glMatrix.vec2.fromValues(
+                    // Mouse coordinates relative to canvas (not screen)
+                    evt.clientX - rect.left,
+                    evt.clientY - rect.top
+                );
+            }
+
+            const picking_ray = camera.get_picking_ray(
+                get_mouse_pos(canvas, event),
+                c_width, c_height
+            );
+
+            const ray_origin = picking_ray.start;
+            const ray_dest = glMatrix.vec3.create();
+            glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
+
+            console.log(ray_origin);
+            console.log(ray_dest);
+
+            const tempVRayOrigin = new Ammo.btVector3();
+            const tempVRayDest = new Ammo.btVector3();
+            const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
+            const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
+            rayCallBack.set_m_closestHitFraction(1);
+            rayCallBack.set_m_collisionObject(null);
+
+            // Set closestRayResultCallback origin and dest
+            tempVRayOrigin.setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+            tempVRayDest.setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+            closestRayResultCallback.get_m_rayFromWorld().setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+            closestRayResultCallback.get_m_rayToWorld().setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+
+            // Perform ray test
+            physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
+
+            if (closestRayResultCallback.hasHit()) {
+                const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
+                console.log("OK!");
+                console.log(body);
+                console.log(body === object1_phys ? "VALIDATED!" : "NOOO");
+                console.log(body.orig_object);
+            }
+        });
+
         function animate(time) {
             //Draw loop
             gl.clearColor(0.2, 0.2, 0.2, 1);
@@ -221,7 +276,7 @@
         animate(0);
     }
 
-    main();
+    Ammo().then(main);
 </script>
 </body>
 

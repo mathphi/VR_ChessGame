@@ -110,8 +110,9 @@ void main() {
         float dist = distance(light_position, v_frag_coord);
         float dist_att = 1.0 / (1.0 + 0.022*dist + 0.0019*pow(dist, 2.0));
 
-        light_diff += diffusion * light_color * direction_att * dist_att;
-        light_spec += specular * light_color * direction_att * dist_att;
+        vec3 light_comp = light_color * direction_att * dist_att;
+        light_diff += diffusion * light_comp;
+        light_spec += specular * light_comp;
     }
 
     // Intrinsic object color

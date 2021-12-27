@@ -182,7 +182,7 @@
             world_up, world_center);
 
         // Get camera projection
-        const projection = camera.get_projection(45.0, c_width / c_height, 0.01, 100.0);
+        const projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
 
         function animate(time) {
             //Draw loop
