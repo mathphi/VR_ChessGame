@@ -45,10 +45,10 @@
         const cubemap = await make_cubemap(gl, '../objects/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
-        const cube = await load_obj('objects/cube.obj');
-        const plane = await load_obj('objects/plane.obj');
-        const torus = await load_obj('objects/torus.obj');
-        const chessboard = await load_obj('objects/Chessboard.obj');
+        const cube = load_obj('objects/cube.obj');
+        const plane = load_obj('objects/plane.obj');
+        const torus = load_obj('objects/Knight.obj', false);
+        const chessboard = load_obj('objects/Chessboard.obj');
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
@@ -77,12 +77,15 @@
         object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
-        object1.model = glMatrix.mat4.translate(object1.model,object1.model,
+        object1.model = glMatrix.mat4.translate(object1.model, object1.model,
             glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
-        object3.model = glMatrix.mat4.translate(object3.model,object3.model,
+        object3.model = glMatrix.mat4.translate(object3.model, object3.model,
             glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
-        object4.model = glMatrix.mat4.translate(object4.model,object4.model,
+        object3.model = glMatrix.mat4.rotateX(object3.model, object3.model, 60 / 180 * Math.PI);
+        object4.model = glMatrix.mat4.translate(object4.model, object4.model,
             glMatrix.vec3.fromValues(0.0, -4.0, 0.0));
+        object4.model = glMatrix.mat4.rotateZ(object4.model, object4.model, -10 / 180 * Math.PI);
+
 
         const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
         const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
@@ -141,12 +144,10 @@
         // We need the camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
-        // Just for the test
-        let green_light_removed = false;
 
-
-        const object1_phys = physics_engine.register_object(object1, 0);
-        console.log(object1_phys);
+        const object1_phys = physics_engine.register_object(object1, 1);
+        const object3_phys = physics_engine.register_object(object3, 1);
+        const object4_phys = physics_engine.register_object(object4, 0);
 
         canvas.addEventListener("mousedown", function(event) {
             function get_mouse_pos(canvas, evt) {
@@ -167,9 +168,6 @@
             const ray_dest = glMatrix.vec3.create();
             glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
 
-            console.log(ray_origin);
-            console.log(ray_dest);
-
             const tempVRayOrigin = new Ammo.btVector3();
             const tempVRayDest = new Ammo.btVector3();
             const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
@@ -186,16 +184,40 @@
             // Perform ray test
             physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
 
+            // If the ray hit an object in the world
             if (closestRayResultCallback.hasHit()) {
                 const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
-                console.log("OK!");
-                console.log(body);
-                console.log(body === object1_phys ? "VALIDATED!" : "NOOO");
-                console.log(body.orig_object);
+
+                if (body.orig_object.mass === undefined) {
+                    body.orig_object.mass = 1.0;
+                }
+
+                const newmass = (body.orig_object.mass === 1.0 ? 0.0 : 1.0);
+                body.orig_object.set_physics_mass(newmass);
+                body.orig_object.mass = newmass;
+
+                const null_vect = new Ammo.btVector3(0.0, 0.0, 0.0);
+
+                body.clearForces();
+                body.setAngularVelocity(null_vect);
+                body.setLinearVelocity(null_vect);
             }
         });
 
+        // Just for the test
+        let green_light_removed = false;
+        let object1_moved = false;
+
+        // Time counters
+        let prev_time = 0;
+        let delta_time = 0;
+
         function animate(time) {
+            delta_time = time - prev_time;
+            prev_time = time;
+            physics_engine.update(delta_time/1000.0); // Delta time in seconds
+
+
             //Draw loop
             gl.clearColor(0.2, 0.2, 0.2, 1);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -216,10 +238,19 @@
             glMatrix.vec3.add(spot_pos, spotlight_pos, glMatrix.vec3.fromValues(0.0, light_dist, 0.0));
             lights_set.set_light_position(spotlight2, spot_pos);
 */
-            // Remove the green light after 11 seconds
+            // Remove the green light after 22 seconds
             if (time > 22000 && !green_light_removed) {
                 lights_set.remove_light(green_light);
                 green_light_removed = true;
+            }
+
+            // Remove the green light after 22 seconds
+            if (time > 10000 && !object1_moved) {
+                console.log("MOVED");
+                object1.model = glMatrix.mat4.translate(object1.model, object1.model,
+                    glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
+                object1.update_physics_transform()
+                object1_moved = true;
             }
 
             /************************
