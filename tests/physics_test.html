@@ -4,7 +4,7 @@
     <title>Physics test - VR ChessGame</title>
 </head>
 <body>
-<canvas id="webgl_canvas" width="800" height="600"></canvas>
+<canvas id="webgl_canvas" width="1200" height="800" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
@@ -47,16 +47,16 @@
         // loading the object from a file
         const cube = load_obj('objects/cube.obj');
         const plane = load_obj('objects/plane.obj');
-        const torus = load_obj('objects/Knight.obj', false);
-        const chessboard = load_obj('objects/Chessboard.obj');
+        const knight = load_obj('objects/Knight.obj', false);
+        const chessboard = load_obj('objects/chessboard.obj');
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
-        const bump_map = await load_texture(gl, 'textures/BumpMap.png');
+        const bump_map = await load_texture(gl, 'textures/WoodBumpMap.png', true);
 
         // Load textures
         const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
-
+        const texture_plane = await load_texture(gl, 'textures/Wood.jpg', true);
         // Metal material visual properties
         const material_metal = make_material('metal');
         material_metal.set_reflection(0.8);
@@ -65,27 +65,30 @@
         // Asynchronous call, we waited till the object was ready
         // Make the buffer and the functions to draw the object:
         const object1 = await make_object(gl, cube, texture_cube, bump_map_cube);
-        const object2 = await make_object(gl, plane, null, bump_map);
-        const object3 = await make_object(gl, torus, null, null, material_metal);
+        const object2 = await make_object(gl, plane, texture_plane, bump_map);
+        const object3 = await make_object(gl, knight, null, null, material_metal);
         const object4 = await make_object(gl, chessboard);
 
         // Set cube material properties
         object1.materials['default'].set_specular(100.0, 0.6);
         object1.materials['default'].set_refraction(0.3, 1.50);
-
         // Make the plane material yellow
-        object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
+        //object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
         object1.model = glMatrix.mat4.translate(object1.model, object1.model,
             glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
+        object2.model = glMatrix.mat4.translate(object2.model, object2.model,
+            glMatrix.vec3.fromValues(0.0, -10.0, 0.0));
+        object2.model = glMatrix.mat4.scale(object2.model, object2.model,
+            glMatrix.vec3.fromValues(20.0, 1.0, 20.0));
         object3.model = glMatrix.mat4.translate(object3.model, object3.model,
             glMatrix.vec3.fromValues(-2.3, 0.0, 0.0));
         object3.model = glMatrix.mat4.rotateX(object3.model, object3.model, 60 / 180 * Math.PI);
         object4.model = glMatrix.mat4.translate(object4.model, object4.model,
             glMatrix.vec3.fromValues(0.0, -4.0, 0.0));
         object4.model = glMatrix.mat4.rotateZ(object4.model, object4.model, -10 / 180 * Math.PI);
-
+    
 
         const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
         const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
@@ -146,62 +149,74 @@
 
 
         const object1_phys = physics_engine.register_object(object1, 1);
+        const object2_phys = physics_engine.register_object(object2, 0);
         const object3_phys = physics_engine.register_object(object3, 1);
         const object4_phys = physics_engine.register_object(object4, 0);
 
+
         canvas.addEventListener("mousedown", function(event) {
-            function get_mouse_pos(canvas, evt) {
+            const MouseButtons = {
+                NONE:   0,
+                LEFT:   1,
+                RIGHT:  2,
+                MIDDLE: 4
+            }
+
+            if((event.buttons & MouseButtons.RIGHT)){
+                function get_mouse_pos(canvas, evt) {
                 const rect = canvas.getBoundingClientRect();
                 return glMatrix.vec2.fromValues(
                     // Mouse coordinates relative to canvas (not screen)
                     evt.clientX - rect.left,
                     evt.clientY - rect.top
                 );
-            }
-
-            const picking_ray = camera.get_picking_ray(
-                get_mouse_pos(canvas, event),
-                c_width, c_height
-            );
-
-            const ray_origin = picking_ray.start;
-            const ray_dest = glMatrix.vec3.create();
-            glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
-
-            const tempVRayOrigin = new Ammo.btVector3();
-            const tempVRayDest = new Ammo.btVector3();
-            const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
-            const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
-            rayCallBack.set_m_closestHitFraction(1);
-            rayCallBack.set_m_collisionObject(null);
-
-            // Set closestRayResultCallback origin and dest
-            tempVRayOrigin.setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
-            tempVRayDest.setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
-            closestRayResultCallback.get_m_rayFromWorld().setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
-            closestRayResultCallback.get_m_rayToWorld().setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
-
-            // Perform ray test
-            physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
-
-            // If the ray hit an object in the world
-            if (closestRayResultCallback.hasHit()) {
-                const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
-
-                if (body.orig_object.mass === undefined) {
-                    body.orig_object.mass = 1.0;
                 }
 
-                const newmass = (body.orig_object.mass === 1.0 ? 0.0 : 1.0);
-                body.orig_object.set_physics_mass(newmass);
-                body.orig_object.mass = newmass;
+                const picking_ray = camera.get_picking_ray(
+                    get_mouse_pos(canvas, event),
+                    c_width, c_height
+                );
 
-                const null_vect = new Ammo.btVector3(0.0, 0.0, 0.0);
+                const ray_origin = picking_ray.start;
+                const ray_dest = glMatrix.vec3.create();
+                glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
 
-                body.clearForces();
-                body.setAngularVelocity(null_vect);
-                body.setLinearVelocity(null_vect);
+                const tempVRayOrigin = new Ammo.btVector3();
+                const tempVRayDest = new Ammo.btVector3();
+                const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
+                const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
+                rayCallBack.set_m_closestHitFraction(1);
+                rayCallBack.set_m_collisionObject(null);
+
+                // Set closestRayResultCallback origin and dest
+                tempVRayOrigin.setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+                tempVRayDest.setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+                closestRayResultCallback.get_m_rayFromWorld().setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+                closestRayResultCallback.get_m_rayToWorld().setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+
+                // Perform ray test
+                physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
+
+                // If the ray hit an object in the world
+                if (closestRayResultCallback.hasHit()) {
+                    const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
+
+                    if (body.orig_object.mass === undefined) {
+                        body.orig_object.mass = 1.0;
+                    }
+
+                    const newmass = (body.orig_object.mass === 1.0 ? 0.0 : 1.0);
+                    body.orig_object.set_physics_mass(newmass);
+                    body.orig_object.mass = newmass;
+
+                    const null_vect = new Ammo.btVector3(0.0, 0.0, 0.0);
+
+                    body.clearForces();
+                    body.setAngularVelocity(null_vect);
+                    body.setLinearVelocity(null_vect);
+                }
             }
+            
         });
 
         // Just for the test
