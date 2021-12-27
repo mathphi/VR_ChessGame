@@ -1,0 +1,26 @@
+# Blender MTL File: 'Chessboard.blend'
+# Material Count: 3
+
+newmtl Black_Glass
+Color 0.100000 0.100000 0.100000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.1
+Refr_s 0.0
+Refr_i 1.52
+
+newmtl Black_Glossy
+Color 0.1000000 0.100000 0.100000
+Spec_e 100.0
+Spec_s 1.0
+Refl_s 0.2
+Refr_s 0.0
+Refr_i 1.0
+
+newmtl Glass
+Color 1.0000000 1.000000 1.000000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.1
+Refr_s 0.0
+Refr_i 1.52
