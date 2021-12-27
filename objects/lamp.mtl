@@ -1,0 +1,19 @@
+# Blender MTL File: 'LIGHT.blend'
+# Material Count: 2
+
+newmtl GLASS
+Color 1.0000000 1.000000 1.000000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.0
+Refr_s 1.0
+Refr_i 1.52
+
+
+newmtl Lamp
+Color 0.100000 0.100000 0.100000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.1
+Refr_s 0.0
+Refr_i 1.52
