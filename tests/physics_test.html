@@ -4,7 +4,7 @@
     <title>Physics test - VR ChessGame</title>
 </head>
 <body>
-<canvas id="webgl_canvas" width="1200" height="800" oncontextmenu="return false;"></canvas>
+<canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
@@ -46,9 +46,9 @@
 
         // loading the object from a file
         const cube = load_obj('objects/cube.obj');
-        const plane = load_obj('objects/plane.obj');
+        const plane = load_obj('objects/ground_plane.obj');
         const knight = load_obj('objects/Knight.obj', false);
-        const chessboard = load_obj('objects/chessboard.obj');
+        const chessboard = load_obj('../objects/chessboard.obj');
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
