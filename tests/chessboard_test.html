@@ -43,6 +43,22 @@
 <script type="text/javascript" src="../3rdparty/ammo.js/builds/ammo.js"></script>
 <script type="text/javascript" src="../3rdparty/chess.js/chess.js"></script>
 <script>
+    const MouseButtons = {
+        NONE:   0,
+        LEFT:   1,
+        RIGHT:  2,
+        MIDDLE: 4
+    }
+
+    function get_mouse_pos(canvas, evt) {
+        const rect = canvas.getBoundingClientRect();
+        return glMatrix.vec2.fromValues(
+            // Mouse coordinates relative to canvas (not screen)
+            evt.clientX - rect.left,
+            evt.clientY - rect.top
+        );
+    }
+
     async function main() {
         // Initialize GL and canvas
         const canvas = document.getElementById('webgl_canvas');
@@ -190,79 +206,48 @@
         */
 
         canvas.addEventListener("mousedown", function(event) {
-            const MouseButtons = {
-                NONE:   0,
-                LEFT:   1,
-                RIGHT:  2,
-                MIDDLE: 4
-            }
-
-            if((event.buttons & MouseButtons.RIGHT)){
-                function get_mouse_pos(canvas, evt) {
-                const rect = canvas.getBoundingClientRect();
-                return glMatrix.vec2.fromValues(
-                    // Mouse coordinates relative to canvas (not screen)
-                    evt.clientX - rect.left,
-                    evt.clientY - rect.top
-                );
-                }
-
+            if (event.buttons & MouseButtons.RIGHT) {
+                // Compute the picking ray from mouse cursor
                 const picking_ray = camera.get_picking_ray(
                     get_mouse_pos(canvas, event),
                     c_width, c_height
                 );
 
-                const ray_origin = picking_ray.start;
-                const ray_dest = glMatrix.vec3.create();
-                glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
-
-                const tempVRayOrigin = new Ammo.btVector3();
-                const tempVRayDest = new Ammo.btVector3();
-                const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
-                const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
-                rayCallBack.set_m_closestHitFraction(1);
-                rayCallBack.set_m_collisionObject(null);
-
-                // Set closestRayResultCallback origin and dest
-                tempVRayOrigin.setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
-                tempVRayDest.setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
-                closestRayResultCallback.get_m_rayFromWorld().setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
-                closestRayResultCallback.get_m_rayToWorld().setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
-
-                // Perform ray test
-                physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
+                // Run picking using the computed ray
+                const picking_result = physics_engine.run_picking(picking_ray);
 
                 // If the ray hit an object in the world
-                if (closestRayResultCallback.hasHit()) {
-                    const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
+                if (picking_result.hasHit()) {
+                    // Get the picked body and its intersection point in 3D space
+                    const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
+                    const picked_point = picking_result.get_m_hitPointWorld();
 
-                    const point = closestRayResultCallback.get_m_hitPointWorld();
-                    console.log(point.x(), point.y(), point.z());
-
-                    const game_pos = chessboard.squareFrom3DPosition(glMatrix.vec3.fromValues(
-                        point.x(), point.y(), point.z()
-                    ));
-
-                    if (game_pos !== null) {
-                        console.log("Chessboard clicked at: " + chessboard.gameToLetterPosition(game_pos));
+                    // If ctrl key is not pressed
+                    if (!event.ctrlKey) {
+                        // If the picked object comes from the chessboard
+                        if (picked_body.orig_object.from_chess !== undefined) {
+                            // Send the information to the chessboard
+                            chessboard.on_chess_picked(
+                                picked_body.orig_object,
+                                glMatrix.vec3.fromValues(
+                                    picked_point.x(), picked_point.y(), picked_point.z()
+                                )
+                            );
+                        }
                     }
-
-                    if (body.orig_object.mass === undefined) {
-                        body.orig_object.mass = 1.0;
+                    // If ctrl is pressed -> toggle the object's mass
+                    else {
+                        if (picked_body.orig_object.mass === undefined) {
+                            picked_body.orig_object.mass = 1.0;
+                        }
+                        const new_mass = (picked_body.orig_object.mass === 1.0 ? 0.0 : 1.0);
+                        picked_body.orig_object.set_physics_mass(new_mass);
+                        picked_body.orig_object.mass = new_mass;
+                        picked_body.orig_object.reset_physics_motion();
+                        picked_body.activate(false);
                     }
-
-                    const newmass = (body.orig_object.mass === 1.0 ? 0.0 : 1.0);
-                    body.orig_object.set_physics_mass(newmass);
-                    body.orig_object.mass = newmass;
-
-                    const null_vect = new Ammo.btVector3(0.0, 0.0, 0.0);
-
-                    body.clearForces();
-                    body.setAngularVelocity(null_vect);
-                    body.setLinearVelocity(null_vect);
                 }
             }
-            
         });
 
         // Just for the test
