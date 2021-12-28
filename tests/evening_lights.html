@@ -66,17 +66,16 @@
         const shader_cubemap = await make_shader(gl, 'cubemap_shader', '../shaders');
 
         // Create the cubemap
-        const cubemap = await make_cubemap(gl, '../objects/cube.obj', 'textures/cubemaps/Nalovardo', 2048);
+        const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/Nalovardo', 2048);
 
         // loading the object from a file
-        const cube = load_obj('objects/cube.obj');
-        const glass = load_obj('../objects/glass.obj', false);
-        const table = load_obj('../objects/table.obj');
-        const lamp = load_obj('../objects/lamp.obj');
-        const lamp_table = load_obj('../objects/lamp_table.obj');
-        const alarm_clock = load_obj('../objects/clock_main_lp.obj', true);
-        const alarm_clock_min = load_obj('../objects/clock_min.obj', false);
-        const alarm_clock_sec = load_obj('../objects/clock_sec.obj', false);
+        const glass = load_obj('../objects/misc/glass.obj', false);
+        const table = load_obj('../objects/misc/table.obj');
+        const lamp = load_obj('../objects/misc/lamp.obj');
+        const lamp_table = load_obj('../objects/misc/lamp_table.obj');
+        const alarm_clock = load_obj('../objects/misc/clock_main_lp.obj', true);
+        const alarm_clock_min = load_obj('../objects/misc/clock_min.obj', false);
+        const alarm_clock_sec = load_obj('../objects/misc/clock_sec.obj', false);
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
