@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Physics test - VR ChessGame</title>
+</head>
+<body>
+<canvas id="webgl_canvas" width="1400" height="800" oncontextmenu="return false;"></canvas>
+<div id="fps"></div>
+<div id="camera_mat"></div>
+<div id="proj_mat"></div>
+
+<script src="../lib/gl-matrix-min.js"></script>
+<script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../lib/lights.js"></script>
+<script type="text/javascript" src="../lib/objects.js"></script>
+<script type="text/javascript" src="../lib/material.js"></script>
+<script type="text/javascript" src="../lib/bump_mapping.js"></script>
+<script type="text/javascript" src="../lib/textures.js"></script>
+<script type="text/javascript" src="../lib/cubemap.js"></script>
+<script type="text/javascript" src="../lib/physics.js"></script>
+<script type="text/javascript" src="../3rdparty/ammo.js/builds/ammo.js"></script>
+<script>
+    async function main() {
+        // Initialize GL and canvas
+        const canvas = document.getElementById('webgl_canvas');
+        const c_width = canvas.width;
+        const c_height = canvas.height;
+        const gl = canvas.getContext('webgl');
+
+        // Initialize Physics engine
+        const physics_engine = setupPhysics();
+
+        // Enable tests for better rendering
+        gl.enable(gl.DEPTH_TEST);
+        //gl.enable(gl.CULL_FACE); // cull hidden faces behind normals!
+
+        // Compile a shader program from the sources of "common_shader"
+        const shader_common = await make_shader(gl, 'common_shader', '../shaders');
+
+        // Compile a shader program from the sources of "cubemap_shader"
+        const shader_cubemap = await make_shader(gl, 'cubemap_shader', '../shaders');
+
+        // Create the cubemap
+        const cubemap = await make_cubemap(gl, '../objects/cube.obj', 'textures/cubemaps/Nalovardo', 2048);
+
+        // loading the object from a file
+        const cube = load_obj('objects/cube.obj');
+        const glass = load_obj('../objects/glass.obj', false);
+        const table = load_obj('../objects/table.obj');
+        const knight = load_obj('objects/Knight.obj', false);
+        const chessboard = load_obj('../objects/chessboard.obj');
+        const lamp = load_obj('../objects/lamp.obj');
+
+        const alarm_clock = load_obj('../objects/clock_main.obj', false);
+        const alarm_clock_min = load_obj('../objects/clock_min.obj', false);
+        const alarm_clock_sec = load_obj('../objects/clock_sec.obj', false);
+
+        // Load bump map
+        const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
+        const bump_map = await load_texture(gl, 'textures/WoodBumpMap.png', true);
+
+        // Load textures
+        const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
+        const texture_plane = await load_texture(gl, 'textures/Wood.jpg', true);
+
+        // Metal material visual properties
+        const material_metal = make_material('metal');
+        material_metal.set_reflection(0.8);
+        material_metal.set_specular(100.0, 1.0);
+        // Glass material visual properties
+        const material_glass = make_material('glass');
+        material_glass.set_reflection(0.0);
+        material_glass.set_refraction(1.0, 1.52);
+        material_glass.set_specular(100.0, 1.0);
+        // Red metal material visual properties
+        const material_red_metal = make_material('red_metal');
+        material_red_metal.set_reflection(0.5);
+        material_red_metal.set_color(glMatrix.vec3.fromValues(1.0, 0.0, 0.0));
+        material_red_metal.set_specular(100.0, 1.0);
+        // White metal material visual properties
+        const material_white_metal = make_material('white_metal');
+        material_white_metal.set_reflection(0.1);
+        material_white_metal.set_color(glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
+        material_white_metal.set_specular(100.0, 1.0);
+        // Black metal material visual properties
+        const material_black_metal = make_material('black_metal');
+        material_black_metal.set_reflection(0.1);
+        material_black_metal.set_color(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
+        material_black_metal.set_specular(100.0, 1.0);
+
+        // Asynchronous call, we waited till the object was ready
+        // Make the buffer and the functions to draw the object:
+        const object1 = await make_object(gl, glass, null, null, material_glass);
+        const object2 = await make_object(gl, table, texture_plane, bump_map);
+        const object3 = await make_object(gl, knight, null, null, material_metal);
+        const object4 = await make_object(gl, chessboard);
+
+        const lamp_obj = await make_object(gl, lamp);
+        const alarm_obj = await make_object(gl, alarm_clock, null, null, material_white_metal);
+        const alarm_min_obj = await make_object(gl, alarm_clock_min, null, null, material_black_metal);
+        const alarm_sec_obj = await make_object(gl, alarm_clock_sec, null, null, material_red_metal);
+        // Set cube material properties
+        //object1.materials['default'].set_specular(100.0, 0.6);
+        //object1.materials['default'].set_refraction(0.3, 1.50);
+        // Make the plane material yellow
+        //object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
+
+        // Translate the objects
+        object1.model = glMatrix.mat4.translate(object1.model, object1.model,
+            glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
+        object2.model = glMatrix.mat4.translate(object2.model, object2.model,
+            glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
+        object2.model = glMatrix.mat4.scale(object2.model, object2.model,
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
+        object3.model = glMatrix.mat4.translate(object3.model, object3.model,
+            glMatrix.vec3.fromValues(-2.3, 1.0, 0.0));
+        object3.model = glMatrix.mat4.rotateX(object3.model, object3.model, 60 / 180 * Math.PI);
+        object4.model = glMatrix.mat4.translate(object4.model, object4.model,
+            glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
+        object4.model = glMatrix.mat4.rotateZ(object4.model, object4.model, 0 / 180 * Math.PI);
+    
+        lamp_obj.model = glMatrix.mat4.translate(lamp_obj.model, lamp_obj.model,
+            glMatrix.vec3.fromValues(0.0, -40.0, -50.0));
+        lamp_obj.model = glMatrix.mat4.scale(lamp_obj.model, lamp_obj.model,
+            glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
+
+
+        alarm_obj.model = glMatrix.mat4.translate(alarm_obj.model, alarm_obj.model,
+            glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+        alarm_min_obj.model = glMatrix.mat4.translate(alarm_min_obj.model, alarm_min_obj.model,
+            glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+        alarm_sec_obj.model = glMatrix.mat4.translate(alarm_sec_obj.model, alarm_sec_obj.model,
+            glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+        
+
+        const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
+        const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
+
+        // We define a light set (set of lights with some properties)
+        // WARNING: shader code designed for max 10 lights !
+        const lights_set = make_lights_set(gl);
+        // Light 0
+        const orange_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(0.0, 30.0, -50.0),
+            glMatrix.vec3.fromValues(5.0, 2.5, 0.0))
+
+        const yellow_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(0.0, 20.0, 50.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 0.5))
+
+        // Spotlight
+        const spotlight1 = lights_set.add_spot_light(
+            glMatrix.vec3.fromValues(1.5, 10.0, 0.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
+            2,
+            8
+        )
+        // Spotlight
+        const spotlight2 = lights_set.add_spot_light(
+            spotlight_pos,
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            spotlight_dir,
+            2,
+            8
+        )
+
+        // Camera initial values
+        const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
+        const world_up      = glMatrix.vec3.fromValues(0.0, 1.0, 0.0);
+        const zenith        = 90.0;
+        const azimuth       = 90.0;
+        const radius        = 10.0;
+
+        // Create camera
+        const camera = make_camera(
+            canvas,
+            radius, zenith, azimuth,
+            world_up, world_center);
+
+        // Get camera projection
+        const projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+
+        // We need the camera position
+        const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
+
+
+        const object1_phys = physics_engine.register_object(object1, 1);
+        const object2_phys = physics_engine.register_object(object2, 0);
+        const object3_phys = physics_engine.register_object(object3, 1);
+        const object4_phys = physics_engine.register_object(object4, 0);
+        
+
+        canvas.addEventListener("mousedown", function(event) {
+            const MouseButtons = {
+                NONE:   0,
+                LEFT:   1,
+                RIGHT:  2,
+                MIDDLE: 4
+            }
+
+            if((event.buttons & MouseButtons.RIGHT)){
+                function get_mouse_pos(canvas, evt) {
+                const rect = canvas.getBoundingClientRect();
+                return glMatrix.vec2.fromValues(
+                    // Mouse coordinates relative to canvas (not screen)
+                    evt.clientX - rect.left,
+                    evt.clientY - rect.top
+                );
+                }
+
+                const picking_ray = camera.get_picking_ray(
+                    get_mouse_pos(canvas, event),
+                    c_width, c_height
+                );
+
+                const ray_origin = picking_ray.start;
+                const ray_dest = glMatrix.vec3.create();
+                glMatrix.vec3.scaleAndAdd(ray_dest, ray_origin, picking_ray.dir, 1000.0);
+
+                const tempVRayOrigin = new Ammo.btVector3();
+                const tempVRayDest = new Ammo.btVector3();
+                const closestRayResultCallback = new Ammo.ClosestRayResultCallback(tempVRayOrigin, tempVRayDest);
+                const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
+                rayCallBack.set_m_closestHitFraction(1);
+                rayCallBack.set_m_collisionObject(null);
+
+                // Set closestRayResultCallback origin and dest
+                tempVRayOrigin.setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+                tempVRayDest.setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+                closestRayResultCallback.get_m_rayFromWorld().setValue(ray_origin[0], ray_origin[1], ray_origin[2]);
+                closestRayResultCallback.get_m_rayToWorld().setValue(ray_dest[0], ray_dest[1], ray_dest[2]);
+
+                // Perform ray test
+                physics_engine.world.rayTest(tempVRayOrigin, tempVRayDest, closestRayResultCallback);
+
+                // If the ray hit an object in the world
+                if (closestRayResultCallback.hasHit()) {
+                    const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
+
+                    if (body.orig_object.mass === undefined) {
+                        body.orig_object.mass = 1.0;
+                    }
+
+                    const newmass = (body.orig_object.mass === 1.0 ? 0.0 : 1.0);
+                    body.orig_object.set_physics_mass(newmass);
+                    body.orig_object.mass = newmass;
+
+                    const null_vect = new Ammo.btVector3(0.0, 0.0, 0.0);
+
+                    body.clearForces();
+                    body.setAngularVelocity(null_vect);
+                    body.setLinearVelocity(null_vect);
+                }
+            }
+            
+        });
+
+        // Time counters
+        let prev_time = 0;
+        let delta_time = 0;
+
+        function animate(time) {
+            delta_time = time - prev_time;
+            prev_time = time;
+            physics_engine.update(delta_time/1000.0); // Delta time in seconds
+
+            alarm_min_obj.model = glMatrix.mat4.rotateZ(alarm_min_obj.model, alarm_min_obj.model, -6*delta_time / (60*1000*180) * Math.PI);
+            alarm_sec_obj.model = glMatrix.mat4.rotateZ(alarm_sec_obj.model, alarm_sec_obj.model, -6*delta_time / (1000*180) * Math.PI);
+            
+            //Draw loop
+            gl.clearColor(0.2, 0.2, 0.2, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            // Animate the spotlight
+            const light_int = (Math.sin(2.0 * Math.PI / (3.0 + 0.05*Math.random()) * time/1000.0 ) + 
+                               Math.sin(2.0 * Math.PI /10.0 * time/1000.0 )
+                               ) / 2.0;
+
+            lights_set.set_light_color(orange_light, 
+                glMatrix.vec3.fromValues(5.0 + 1.0*light_int, 2.5+0.5*light_int, 0.0)
+            );
+
+            /************************
+             **   Cubemap shader   **
+             ************************/
+
+            // Draw the cubemap first (using shader_cubemap)
+            shader_cubemap.use();
+            shader_cubemap.set_projection_uniform(projection);  
+            shader_cubemap.set_view_uniform(camera.get_view_matrix());
+            cubemap.draw(shader_cubemap);
+
+            /***********************
+             **   Common shader   **
+             ***********************/
+
+            // We use the "normal shader"
+            shader_common.use();
+            shader_common.set_projection_uniform(projection);
+            shader_common.set_view_uniform(camera.get_view_matrix());
+
+            // Give cubemap textures (for reflection/refraction)
+            cubemap.activate(shader_common);
+
+            // Activate lights in shader
+            lights_set.activate(shader_common);
+
+            // Add the viewer position
+            gl.uniform3fv(u_cam_pos, camera.get_position());
+
+            object1.draw(shader_common);
+            object2.draw(shader_common);
+            object3.draw(shader_common);
+            object4.draw(shader_common);
+
+            lamp_obj.draw(shader_common);
+            alarm_obj.draw(shader_common);
+            alarm_min_obj.draw(shader_common);
+            alarm_sec_obj.draw(shader_common);
+
+            fps(time);
+            window.requestAnimationFrame(animate); // While(True) loop!
+        }
+
+        //
+        // FPS counter
+        //
+        let prev = 0;
+        const fpsElem = document.querySelector("#fps");
+        function fps(now) {
+            now *= 0.001;
+            const deltaTime = now - prev;
+            prev = now;
+            const fps = 1 / deltaTime;
+            fpsElem.textContent = 'FPS: ' + fps.toFixed(1);
+            return fps;
+        }
+
+        animate(0);
+    }
+
+    Ammo().then(main);
+</script>
+</body>
+
+</html>
