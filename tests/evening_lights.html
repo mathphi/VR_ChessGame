@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Physics test - VR ChessGame</title>
+    <title>Scene test - VR ChessGame</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0
+        }
+        #webgl_canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden
+        }
+    </style>
 </head>
 <body>
-<canvas id="webgl_canvas" width="1400" height="800" oncontextmenu="return false;"></canvas>
+<canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
@@ -26,8 +38,10 @@
     async function main() {
         // Initialize GL and canvas
         const canvas = document.getElementById('webgl_canvas');
-        const c_width = canvas.width;
-        const c_height = canvas.height;
+        let c_width = canvas.clientWidth;
+        let c_height = canvas.clientHeight;
+        canvas.width = c_width;
+        canvas.height = c_height;
         const gl = canvas.getContext('webgl');
 
         // Initialize Physics engine
@@ -176,7 +190,7 @@
             world_up, world_center);
 
         // Get camera projection
-        const projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+        let projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
 
         // We need the camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
@@ -329,6 +343,22 @@
             fpsElem.textContent = 'FPS: ' + fps.toFixed(1);
             return fps;
         }
+
+        /*
+         * Resize canvas and camera with webpage
+         */
+        function onWindowResize() {
+            c_width = canvas.clientWidth;
+            c_height = canvas.clientHeight;
+
+            canvas.width = c_width;
+            canvas.height = c_height;
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+        }
+        window.onresize = onWindowResize;
 
         animate(0);
     }
