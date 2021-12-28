@@ -1,0 +1,37 @@
+# Blender MTL File: 'lamp.blend'
+# Material Count: 4
+
+newmtl Lamp_Body
+Color 0.800000 0.500000 0.200000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.5
+Refr_s 0.0
+Refr_i 0.46
+
+
+newmtl Lamp_Bulb
+Color 10.00000 10.000000 10.000000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.5
+Refr_s 0.0
+Refr_i 1.52
+
+newmtl Lamp_Metal_Bar
+Color 0.200000 0.200000 0.200000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.5
+Refr_s 0.0
+Refr_i 1.52
+
+
+newmtl Lamp_Textile
+Color 1.000000 1.000000 1.000000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.0
+Refr_s 0.00
+Refr_i 1.52
+
