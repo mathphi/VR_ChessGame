@@ -4,7 +4,7 @@
     <title>Physics test - VR ChessGame</title>
 </head>
 <body>
-<canvas id="webgl_canvas" width="1400" height="800" oncontextmenu="return false;"></canvas>
+<canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
@@ -19,7 +19,9 @@
 <script type="text/javascript" src="../lib/textures.js"></script>
 <script type="text/javascript" src="../lib/cubemap.js"></script>
 <script type="text/javascript" src="../lib/physics.js"></script>
+<script type="text/javascript" src="../lib/chessboard.js"></script>
 <script type="text/javascript" src="../3rdparty/ammo.js/builds/ammo.js"></script>
+<script type="text/javascript" src="../3rdparty/chess.js/chess.js"></script>
 <script>
     async function main() {
         // Initialize GL and canvas
@@ -48,8 +50,10 @@
         const cube = load_obj('objects/cube.obj');
         const glass = load_obj('../objects/glass.obj', false);
         const table = load_obj('../objects/table.obj');
+        /*
         const knight = load_obj('objects/Knight.obj', false);
         const chessboard = load_obj('../objects/chessboard.obj');
+        */
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
@@ -58,10 +62,12 @@
         // Load textures
         const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
         const texture_plane = await load_texture(gl, 'textures/Wood.jpg', true);
+
         // Metal material visual properties
         const material_metal = make_material('metal');
         material_metal.set_reflection(0.8);
         material_metal.set_specular(100.0, 1.0);
+
         // Glass material visual properties
         const material_glass = make_material('glass');
         material_glass.set_reflection(0.0);
@@ -72,8 +78,14 @@
         // Make the buffer and the functions to draw the object:
         const object1 = await make_object(gl, glass, null, null, material_glass);
         const object2 = await make_object(gl, table, texture_plane, bump_map);
-        const object3 = await make_object(gl, knight, null, null, material_metal);
-        const object4 = await make_object(gl, chessboard);
+        //const object3 = await make_object(gl, knight, null, null, material_metal);
+        //const object4 = await make_object(gl, chessboard);
+
+        const chessboard = await make_chessboard(
+            gl, physics_engine, '../objects/'
+        );
+        chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
+        chessboard.set_rotationY(Math.PI / 2.0);
 
         // Set cube material properties
         //object1.materials['default'].set_specular(100.0, 0.6);
@@ -82,19 +94,14 @@
         //object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
-        object1.model = glMatrix.mat4.translate(object1.model, object1.model,
-            glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
-        object2.model = glMatrix.mat4.translate(object2.model, object2.model,
-            glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
-        object2.model = glMatrix.mat4.scale(object2.model, object2.model,
-            glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
-        object3.model = glMatrix.mat4.translate(object3.model, object3.model,
-            glMatrix.vec3.fromValues(-2.3, 1.0, 0.0));
+        object1.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
+        object2.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
+        /*
+        object3.set_position(glMatrix.vec3.fromValues(-2.3, 1.0, 0.0));
         object3.model = glMatrix.mat4.rotateX(object3.model, object3.model, 60 / 180 * Math.PI);
-        object4.model = glMatrix.mat4.translate(object4.model, object4.model,
-            glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
+        object4.set_position(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
         object4.model = glMatrix.mat4.rotateZ(object4.model, object4.model, 0 / 180 * Math.PI);
-    
+    */
 
         const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
         const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
@@ -137,9 +144,9 @@
         // Camera initial values
         const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
         const world_up      = glMatrix.vec3.fromValues(0.0, 1.0, 0.0);
-        const zenith        = 90.0;
-        const azimuth       = 90.0;
-        const radius        = 10.0;
+        const zenith        = 60.0;
+        const azimuth       = 120.0;
+        const radius        = 40.0;
 
         // Create camera
         const camera = make_camera(
@@ -156,9 +163,10 @@
 
         const object1_phys = physics_engine.register_object(object1, 1);
         const object2_phys = physics_engine.register_object(object2, 0);
+        /*
         const object3_phys = physics_engine.register_object(object3, 1);
         const object4_phys = physics_engine.register_object(object4, 0);
-
+        */
 
         canvas.addEventListener("mousedown", function(event) {
             const MouseButtons = {
@@ -304,8 +312,11 @@
 
             object1.draw(shader_common);
             object2.draw(shader_common);
+            /*
             object3.draw(shader_common);
             object4.draw(shader_common);
+            */
+            chessboard.draw(shader_common);
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
