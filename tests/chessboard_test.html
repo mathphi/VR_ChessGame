@@ -229,6 +229,17 @@
                 if (closestRayResultCallback.hasHit()) {
                     const body = Ammo.castObject(closestRayResultCallback.get_m_collisionObject(), Ammo.btRigidBody);
 
+                    const point = closestRayResultCallback.get_m_hitPointWorld();
+                    console.log(point.x(), point.y(), point.z());
+
+                    const game_pos = chessboard.squareFrom3DPosition(glMatrix.vec3.fromValues(
+                        point.x(), point.y(), point.z()
+                    ));
+
+                    if (game_pos !== null) {
+                        console.log("Chessboard clicked at: " + chessboard.gameToLetterPosition(game_pos));
+                    }
+
                     if (body.orig_object.mass === undefined) {
                         body.orig_object.mass = 1.0;
                     }
