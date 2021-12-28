@@ -76,8 +76,7 @@
         //object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
 
         // Translate the objects
-        object1.model = glMatrix.mat4.translate(object1.model, object1.model,
-            glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
+        object1.set_position(glMatrix.vec3.fromValues(2.3, 0.0, 0.0));
         object2.model = glMatrix.mat4.translate(object2.model, object2.model,
             glMatrix.vec3.fromValues(0.0, -10.0, 0.0));
         object2.model = glMatrix.mat4.scale(object2.model, object2.model,
@@ -262,8 +261,7 @@
             // Remove the green light after 22 seconds
             if (time > 10000 && !object1_moved) {
                 console.log("MOVED");
-                object1.model = glMatrix.mat4.translate(object1.model, object1.model,
-                    glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
+                object1.set_position(glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
                 object1.update_physics_transform()
                 object1_moved = true;
             }
