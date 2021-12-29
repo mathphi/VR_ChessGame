@@ -229,7 +229,7 @@
                 const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
                 const picked_point = picking_result.get_m_hitPointWorld();
 
-                if (event.buttons & MouseButtons.RIGHT) {
+                if (event.button === MouseButtons.RIGHT) {
                     // If ctrl key is not pressed
                     if (!event.ctrlKey) {
                         // If the picked object comes from the chessboard
