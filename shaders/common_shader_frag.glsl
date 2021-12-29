@@ -30,6 +30,9 @@ uniform float u_refract_index;
 // Camera position
 uniform vec3 u_cam_pos;
 
+// Object state artefacts
+uniform bool u_is_highlighted;
+
 // Textures and bumpmap uniforms
 uniform bool u_has_texture;
 uniform bool u_has_bumpmap;
@@ -139,6 +142,11 @@ void main() {
         vec3 refract_ray = refract(camera_ray, normal, refract_ratio);
         vec4 cubemap_color = textureCube(u_cubemap, refract_ray);
         total_color = (1.0 - u_refract_strength) * total_color + u_refract_strength * cubemap_color;
+    }
+
+    if (u_is_highlighted) {
+        // Add a component in each color to increase lighting
+        total_color = vec4(vec3(total_color) + vec3(0.2, 0.2, 0.2), 1.0);
     }
 
     gl_FragColor = total_color;

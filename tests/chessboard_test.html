@@ -21,11 +21,20 @@
             font-size: 11pt;
             text-shadow: black 0 0 10px;
         }
+        #elapsed {
+            position: absolute;
+            top: 20px;
+            left: 120px;
+            color: white;
+            font-size: 11pt;
+            text-shadow: black 0 0 10px;
+        }
     </style>
 </head>
 <body>
 <canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
+<div id="elapsed"></div>
 <div id="camera_mat"></div>
 <div id="proj_mat"></div>
 
@@ -81,11 +90,14 @@
         // Compile a shader program from the sources of "cubemap_shader"
         const shader_cubemap = await make_shader(gl, 'cubemap_shader', '../shaders');
 
+        // Compile a shader specific to move squares
+        const move_squares_shader = await make_shader(gl, 'move_squares_shader', '../shaders');
+
         // Create the cubemap
         const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
-        const glass = load_obj('../objects/misc/glass.obj', false);
+        const glass = load_obj('objects/Rook CoM.obj', false);
         const table = load_obj('../objects/misc/table.obj');
         /*
         const knight = load_obj('objects/Knight.obj', false);
@@ -119,7 +131,7 @@
         //const object4 = await make_object(gl, chessboard);
 
         const chessboard = await make_chessboard(
-            gl, physics_engine, '../objects/'
+            gl, physics_engine, '../'
         );
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
@@ -197,37 +209,33 @@
         // We need the camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
+        physics_engine.register_object(object1, 1);
+        physics_engine.register_object(object2, 0);
 
-        const object1_phys = physics_engine.register_object(object1, 1);
-        const object2_phys = physics_engine.register_object(object2, 0);
-        /*
-        const object3_phys = physics_engine.register_object(object3, 1);
-        const object4_phys = physics_engine.register_object(object4, 0);
-        */
 
-        canvas.addEventListener("mousedown", function(event) {
-            if (event.buttons & MouseButtons.RIGHT) {
-                // Compute the picking ray from mouse cursor
-                const picking_ray = camera.get_picking_ray(
-                    get_mouse_pos(canvas, event),
-                    c_width, c_height
-                );
+        function on_mouse_event(event) {
+            // Compute the picking ray from mouse cursor
+            const picking_ray = camera.get_picking_ray(
+                get_mouse_pos(canvas, event),
+                canvas.clientWidth, canvas.clientHeight
+            );
 
-                // Run picking using the computed ray
-                const picking_result = physics_engine.run_picking(picking_ray);
+            // Run picking using the computed ray
+            const picking_result = physics_engine.run_picking(picking_ray);
 
-                // If the ray hit an object in the world
-                if (picking_result.hasHit()) {
-                    // Get the picked body and its intersection point in 3D space
-                    const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
-                    const picked_point = picking_result.get_m_hitPointWorld();
+            // If the ray hit an object in the world
+            if (picking_result.hasHit()) {
+                // Get the picked body and its intersection point in 3D space
+                const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
+                const picked_point = picking_result.get_m_hitPointWorld();
 
+                if (event.buttons & MouseButtons.RIGHT) {
                     // If ctrl key is not pressed
                     if (!event.ctrlKey) {
                         // If the picked object comes from the chessboard
                         if (picked_body.orig_object.from_chess !== undefined) {
                             // Send the information to the chessboard
-                            chessboard.on_chess_picked(
+                            chessboard.on_chess_clicked(
                                 picked_body.orig_object,
                                 glMatrix.vec3.fromValues(
                                     picked_point.x(), picked_point.y(), picked_point.z()
@@ -247,8 +255,22 @@
                         picked_body.activate(false);
                     }
                 }
+                else {// If the picked object comes from the chessboard
+                    if (picked_body.orig_object.from_chess !== undefined) {
+                        // Send the information to the chessboard
+                        chessboard.on_chess_hover(
+                            picked_body.orig_object,
+                            glMatrix.vec3.fromValues(
+                                picked_point.x(), picked_point.y(), picked_point.z()
+                            )
+                        );
+                    }
+                }
             }
-        });
+        }
+
+        canvas.addEventListener("mousedown", on_mouse_event);
+        canvas.addEventListener("mousemove", on_mouse_event);
 
         // Just for the test
         let green_light_removed = false;
@@ -258,11 +280,12 @@
         let prev_time = 0;
         let delta_time = 0;
 
+        const elapsedElem = document.querySelector("#elapsed");
         function animate(time) {
             delta_time = time - prev_time;
             prev_time = time;
             physics_engine.update(delta_time/1000.0); // Delta time in seconds
-
+            elapsedElem.textContent = "Elapsed: " + Number.parseFloat(time / 1000.0).toFixed(1);
 
             //Draw loop
             gl.clearColor(0.2, 0.2, 0.2, 1);
@@ -293,9 +316,9 @@
             // Remove the green light after 22 seconds
             if (time > 10000 && !object1_moved) {
                 console.log("MOVED");
-                object1.model = glMatrix.mat4.translate(object1.model, object1.model,
-                    glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
+                object1.move(glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
                 object1.update_physics_transform()
+                object1.get_physics_body().activate(false);
                 object1_moved = true;
             }
 
@@ -334,6 +357,16 @@
             object4.draw(shader_common);
             */
             chessboard.draw(shader_common);
+
+            /*****************************
+             **   Move squares shader   **
+             *****************************/
+
+            // Draw the cubemap first (using shader_cubemap)
+            move_squares_shader.use();
+            move_squares_shader.set_projection_uniform(projection);
+            move_squares_shader.set_view_uniform(camera.get_view_matrix());
+            chessboard.draw_move_squares(move_squares_shader);
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
