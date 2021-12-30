@@ -33,21 +33,17 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     const ch_clk_hand_r_obj = await make_object(gl, ch_clk_hand_mesh);
 
     // Positionning of the objects
-    glass_obj.model = glMatrix.mat4.translate(glass_obj.model, glass_obj.model,
-        glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
+    glass_obj.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
 
-    table_obj.model = glMatrix.mat4.translate(table_obj.model, table_obj.model,
-        glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
+    table_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
     table_obj.model = glMatrix.mat4.scale(table_obj.model, table_obj.model,
         glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
 
-    lamp_obj.model = glMatrix.mat4.translate(lamp_obj.model, lamp_obj.model,
-        glMatrix.vec3.fromValues(0.0, -40.0, -50.0));
+    lamp_obj.set_position(glMatrix.vec3.fromValues(0.0, -40.0, -50.0));
     lamp_obj.model = glMatrix.mat4.scale(lamp_obj.model, lamp_obj.model,
         glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
 
-    lamp_table_obj.model = glMatrix.mat4.translate(lamp_table_obj.model, lamp_table_obj.model,
-        glMatrix.vec3.fromValues(10.0, -5.0, 15.0));
+    lamp_table_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, 15.0));
     lamp_table_obj.model = glMatrix.mat4.scale(lamp_table_obj.model, lamp_table_obj.model,
         glMatrix.vec3.fromValues(0.20, 0.20, 0.20));
 
@@ -57,18 +53,16 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
     // clk_sec_obj.model = glMatrix.mat4.translate(clk_sec_obj.model, clk_sec_obj.model,
     //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
-    ch_clk_obj.model = glMatrix.mat4.translate(ch_clk_obj.model, ch_clk_obj.model,
-        glMatrix.vec3.fromValues(0.0, -5.0, -12.0));
-    ch_clk_obj.model = glMatrix.mat4.scale(ch_clk_obj.model, ch_clk_obj.model,
-        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
-    ch_clk_hand_l_obj.model = glMatrix.mat4.translate(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model,
-        glMatrix.vec3.fromValues(-1.5, -3.3, -10.7));
+    ch_clk_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, -12.0));
+    ch_clk_hand_l_obj.set_position(glMatrix.vec3.fromValues(-1.5, -3.3, -10.7));
     ch_clk_hand_l_obj.model = glMatrix.mat4.scale(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model,
         glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
-    ch_clk_hand_r_obj.model = glMatrix.mat4.translate(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model,
-        glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
+    ch_clk_hand_r_obj.set_position(glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
     ch_clk_hand_r_obj.model = glMatrix.mat4.scale(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model,
         glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
+
+    // COLLISION BOXES
+    const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
 
     // LIGHTS
     // Point Lights
@@ -89,10 +83,13 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     )
 
     // CAMERA POSITIONNING
+    camera.set_numkey_camera_view(0, 35.0, 33.0, 20.0, glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
+    camera.set_numkey_camera_view(1, 93.0, -87.0, 5.5, glMatrix.vec3.fromValues(-0.5, 0.0, 36.0));
 
     // OBJECTS PHYSICS
     physics_engine.register_object(table_obj, 0.0);
     physics_engine.register_object(glass_obj, 1.0);
+    physics_engine.register_object(ch_clk_obj, 0.0, c_ch_clk_mesh);
 
     function animate(time, delta_time){
         // Animate clock hands
