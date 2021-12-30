@@ -4,7 +4,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
 
     // TEXTURES
     const table_tex = await load_texture(gl, 'textures/Wood.jpg', true);
-
+    const ch_clk_tex = await load_texture(gl, 'textures/ch_clock_tex.png', true);
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.png', true);
 
@@ -14,17 +14,24 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     const table_mesh = load_obj('objects/misc/table.obj', true);
     const lamp_mesh = load_obj('objects/misc/lamp.obj', false);
     const lamp_table_mesh = load_obj('objects/misc/lamp_table.obj', false);
-    const clk_mesh = load_obj('objects/misc/clock_main_lp.obj', false);
-    const clk_min_mesh = load_obj('objects/misc/clock_min.obj', false);
-    const clk_sec_mesh = load_obj('objects/misc/clock_sec.obj', false);
+    // const clk_mesh = load_obj('objects/misc/clock_main_lp.obj', false);
+    // const clk_min_mesh = load_obj('objects/misc/clock_min.obj', false);
+    // const clk_sec_mesh = load_obj('objects/misc/clock_sec.obj', false);
+    const ch_clk_mesh = load_obj('objects/misc/ch_clock.obj', true);
+    const ch_clk_hand_mesh = load_obj('objects/misc/ch_clock_hand.obj', false);
+
     // Make the buffer and the functions to draw the objects
     const glass_obj = await make_object(gl, glass_mesh);
     const table_obj = await make_object(gl, table_mesh, table_tex, table_bm);
     const lamp_obj = await make_object(gl, lamp_mesh);
     const lamp_table_obj = await make_object(gl, lamp_table_mesh);
-    const clk_obj = await make_object(gl, clk_mesh);
-    const clk_min_obj = await make_object(gl, clk_min_mesh);
-    const clk_sec_obj = await make_object(gl, clk_sec_mesh);
+    // const clk_obj = await make_object(gl, clk_mesh);
+    // const clk_min_obj = await make_object(gl, clk_min_mesh);
+    // const clk_sec_obj = await make_object(gl, clk_sec_mesh);
+    const ch_clk_obj = await make_object(gl, ch_clk_mesh, ch_clk_tex, null);
+    const ch_clk_hand_l_obj = await make_object(gl, ch_clk_hand_mesh);
+    const ch_clk_hand_r_obj = await make_object(gl, ch_clk_hand_mesh);
+
     // Positionning of the objects
     glass_obj.model = glMatrix.mat4.translate(glass_obj.model, glass_obj.model,
         glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
@@ -44,12 +51,24 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     lamp_table_obj.model = glMatrix.mat4.scale(lamp_table_obj.model, lamp_table_obj.model,
         glMatrix.vec3.fromValues(0.20, 0.20, 0.20));
 
-    clk_obj.model = glMatrix.mat4.translate(clk_obj.model, clk_obj.model,
-        glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
-    clk_min_obj.model = glMatrix.mat4.translate(clk_min_obj.model, clk_min_obj.model,
-        glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
-    clk_sec_obj.model = glMatrix.mat4.translate(clk_sec_obj.model, clk_sec_obj.model,
-        glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+    // clk_obj.model = glMatrix.mat4.translate(clk_obj.model, clk_obj.model,
+    //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+    // clk_min_obj.model = glMatrix.mat4.translate(clk_min_obj.model, clk_min_obj.model,
+    //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+    // clk_sec_obj.model = glMatrix.mat4.translate(clk_sec_obj.model, clk_sec_obj.model,
+    //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
+    ch_clk_obj.model = glMatrix.mat4.translate(ch_clk_obj.model, ch_clk_obj.model,
+        glMatrix.vec3.fromValues(0.0, -5.0, -12.0));
+    ch_clk_obj.model = glMatrix.mat4.scale(ch_clk_obj.model, ch_clk_obj.model,
+        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
+    ch_clk_hand_l_obj.model = glMatrix.mat4.translate(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model,
+        glMatrix.vec3.fromValues(-1.5, -3.3, -10.7));
+    ch_clk_hand_l_obj.model = glMatrix.mat4.scale(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model,
+        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
+    ch_clk_hand_r_obj.model = glMatrix.mat4.translate(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model,
+        glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
+    ch_clk_hand_r_obj.model = glMatrix.mat4.scale(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model,
+        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
 
     // LIGHTS
     // Point Lights
@@ -70,7 +89,6 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     )
 
     // CAMERA POSITIONNING
-    //TODO: add set_position etc. for camera to have custom initial position for each scene
 
     // OBJECTS PHYSICS
     physics_engine.register_object(table_obj, 0.0);
@@ -78,8 +96,8 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
 
     function animate(time, delta_time){
         // Animate clock hands
-        clk_min_obj.model = glMatrix.mat4.rotateZ(clk_min_obj.model, clk_min_obj.model, -6*delta_time / (60*1000*180) * Math.PI);
-        clk_sec_obj.model = glMatrix.mat4.rotateZ(clk_sec_obj.model, clk_sec_obj.model, -6*delta_time / (1000*180) * Math.PI);
+        // clk_min_obj.model = glMatrix.mat4.rotateZ(clk_min_obj.model, clk_min_obj.model, -6*delta_time / (60*1000*180) * Math.PI);
+        // clk_sec_obj.model = glMatrix.mat4.rotateZ(clk_sec_obj.model, clk_sec_obj.model, -6*delta_time / (1000*180) * Math.PI);
         
         // Draw loop
         gl.clearColor(0.2, 0.2, 0.2, 1.0);
@@ -109,9 +127,12 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
         table_obj.draw(shader);
         lamp_obj.draw(shader);
         lamp_table_obj.draw(shader);
-        clk_obj.draw(shader);
-        clk_min_obj.draw(shader);
-        clk_sec_obj.draw(shader);
+        // clk_obj.draw(shader);
+        // clk_min_obj.draw(shader);
+        // clk_sec_obj.draw(shader);
+        ch_clk_obj.draw(shader);
+        ch_clk_hand_l_obj.draw(shader);
+        ch_clk_hand_r_obj.draw(shader);
     }
 
 
