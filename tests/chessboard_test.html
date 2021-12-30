@@ -79,6 +79,7 @@
 
         // Initialize Physics engine
         const physics_engine = setupPhysics();
+        physics_engine.set_time_acceleration(1.5);  // Artificial but gives nice results
 
         // Enable tests for better rendering
         gl.enable(gl.DEPTH_TEST);
@@ -92,6 +93,45 @@
 
         // Compile a shader specific to move squares
         const move_squares_shader = await make_shader(gl, 'move_squares_shader', '../shaders');
+
+
+        const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
+        const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
+
+        // We define a light set (set of lights with some properties)
+        // WARNING: shader code designed for max 10 lights !
+        const lights_set = make_lights_set(gl);
+        // Light 1
+        const red_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(3.0, -6.0, -2.0),
+            glMatrix.vec3.fromValues(0.9, 0.1, 0.2)
+        );
+        // Light 2
+        const blue_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(-4.0, 0.0, -6.0),
+            glMatrix.vec3.fromValues(0.1, 0.2, 0.9)
+        );
+        // Light 3
+        const green_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(-2.0, 6.0, -5.0),
+            glMatrix.vec3.fromValues(0.1, 0.45, 0.05)
+        );
+        // Spotlight
+        const spotlight1 = lights_set.add_spot_light(
+            glMatrix.vec3.fromValues(1.5, 10.0, 0.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
+            2,
+            8
+        );
+        // Spotlight
+        const spotlight2 = lights_set.add_spot_light(
+            spotlight_pos,
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            spotlight_dir,
+            2,
+            8
+        );
 
         // Create the cubemap
         const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
@@ -127,7 +167,7 @@
         //const object4 = await make_object(gl, chessboard);
 
         const chessboard = await make_chessboard(
-            gl, physics_engine, '../'
+            gl, physics_engine, lights_set, '../'
         );
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
@@ -135,44 +175,6 @@
         // Translate the objects
         object1.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
         object2.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
-
-        const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
-        const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
-
-        // We define a light set (set of lights with some properties)
-        // WARNING: shader code designed for max 10 lights !
-        const lights_set = make_lights_set(gl);
-        // Light 1
-        const red_light = lights_set.add_point_light(
-            glMatrix.vec3.fromValues(3.0, -6.0, -2.0),
-            glMatrix.vec3.fromValues(0.9, 0.1, 0.2)
-        );
-        // Light 2
-        const blue_light = lights_set.add_point_light(
-            glMatrix.vec3.fromValues(-4.0, 0.0, -6.0),
-            glMatrix.vec3.fromValues(0.1, 0.2, 0.9)
-        );
-        // Light 3
-        const green_light = lights_set.add_point_light(
-            glMatrix.vec3.fromValues(-2.0, 6.0, -5.0),
-            glMatrix.vec3.fromValues(0.1, 0.45, 0.05)
-        );
-        // Spotlight
-        const spotlight1 = lights_set.add_spot_light(
-            glMatrix.vec3.fromValues(1.5, 10.0, 0.0),
-            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
-            glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
-            2,
-            8
-        )
-        // Spotlight
-        const spotlight2 = lights_set.add_spot_light(
-            spotlight_pos,
-            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
-            spotlight_dir,
-            2,
-            8
-        )
 
         // Camera initial values
         const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
@@ -193,8 +195,8 @@
         // We need the camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
-        physics_engine.register_object(object1, 1);
-        physics_engine.register_object(object2, 0);
+        physics_engine.register_object(object1, 1.0);
+        physics_engine.register_object(object2, 0.0);
 
 
         function on_mouse_event(event) {
