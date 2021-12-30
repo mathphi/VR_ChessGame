@@ -1,6 +1,6 @@
 # Blender v3.0.0 OBJ File: 'clock.blend'
 # www.blender.org
-mtllib clock_main_lp.mtl
+mtllib clock.mtl
 o Bolt
 v -1.269655 1.941660 -0.769630
 v -1.249099 1.958365 -0.774544

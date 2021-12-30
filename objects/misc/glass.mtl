@@ -1,0 +1,10 @@
+# Blender MTL File: 'LIGHT.blend'
+# Material Count: 1
+
+newmtl Glass
+Color 1.0000000 1.000000 1.000000
+Spec_e 100.0
+Spec_s 1.0
+Refl_s 0.0
+Refr_s 1.0
+Refr_i 1.52

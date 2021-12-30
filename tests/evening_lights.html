@@ -83,7 +83,7 @@
 
         // Compile a shader specific to move squares
         const move_squares_shader = await make_shader(gl, 'move_squares_shader', '../shaders');
-
+        
         // Create the cubemap
         const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/Nalovardo', 1024);
 
@@ -99,7 +99,6 @@
             glMatrix.vec3.fromValues(0.0, 20.0, 50.0),
             glMatrix.vec3.fromValues(1.0, 1.0, 0.5))
 
-
         // Spotlight
         const spotlight1 = lights_set.add_spot_light(
             glMatrix.vec3.fromValues(10.0, 5.0, 15.0),
@@ -111,10 +110,10 @@
 
         // loading the object from a file
         const glass = load_obj('../objects/misc/glass.obj', false);
-        const table = load_obj('../objects/misc/table.obj');
-        const lamp = load_obj('../objects/misc/lamp.obj');
-        const lamp_table = load_obj('../objects/misc/lamp_table.obj');
-        const alarm_clock = load_obj('../objects/misc/clock_main_lp.obj', true);
+        const table = load_obj('../objects/misc/table.obj', true);
+        const lamp = load_obj('../objects/misc/lamp.obj', false);
+        const lamp_table = load_obj('../objects/misc/lamp_table.obj', false);
+        const alarm_clock = load_obj('../objects/misc/clock_main_lp.obj', false);
         const alarm_clock_min = load_obj('../objects/misc/clock_min.obj', false);
         const alarm_clock_sec = load_obj('../objects/misc/clock_sec.obj', false);
 
@@ -126,34 +125,10 @@
         const texture_cube = await load_texture(gl, 'textures/TextureCube.png');
         const texture_plane = await load_texture(gl, 'textures/Wood.jpg', true);
 
-        // Metal material visual properties
-        const material_metal = make_material('metal');
-        material_metal.set_reflection(0.8);
-        material_metal.set_specular(100.0, 1.0);
-        // Glass material visual properties
-        const material_glass = make_material('glass');
-        material_glass.set_reflection(0.0);
-        material_glass.set_refraction(1.0, 1.52);
-        material_glass.set_specular(100.0, 1.0);
-        // Red metal material visual properties
-        const material_red_metal = make_material('red_metal');
-        material_red_metal.set_reflection(0.5);
-        material_red_metal.set_color(glMatrix.vec3.fromValues(1.0, 0.0, 0.0));
-        material_red_metal.set_specular(100.0, 1.0);
-        // White metal material visual properties
-        const material_white_metal = make_material('white_metal');
-        material_white_metal.set_reflection(0.1);
-        material_white_metal.set_color(glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
-        material_white_metal.set_specular(100.0, 1.0);
-        // Black metal material visual properties
-        const material_black_metal = make_material('black_metal');
-        material_black_metal.set_reflection(0.1);
-        material_black_metal.set_color(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
-        material_black_metal.set_specular(100.0, 1.0);
 
         // Asynchronous call, we waited till the object was ready
         // Make the buffer and the functions to draw the object:
-        const object1 = await make_object(gl, glass, null, null, material_glass);
+        const object1 = await make_object(gl, glass);
         const object2 = await make_object(gl, table, texture_plane, bump_map);
 
         const chessboard = await make_chessboard(
@@ -165,8 +140,8 @@
         const lamp_obj = await make_object(gl, lamp);
         const lamp_table_obj = await make_object(gl, lamp_table);
         const alarm_obj = await make_object(gl, alarm_clock);
-        const alarm_min_obj = await make_object(gl, alarm_clock_min, null, null, material_black_metal);
-        const alarm_sec_obj = await make_object(gl, alarm_clock_sec, null, null, material_red_metal);
+        const alarm_min_obj = await make_object(gl, alarm_clock_min);
+        const alarm_sec_obj = await make_object(gl, alarm_clock_sec);
         // Set cube material properties
         //object1.materials['default'].set_specular(100.0, 0.6);
         //object1.materials['default'].set_refraction(0.3, 1.50);
