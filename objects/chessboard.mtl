@@ -2,9 +2,9 @@
 # Material Count: 3
 
 newmtl Black_Glass
-Color 0.100000 0.100000 0.100000
-Spec_e 60.0
-Spec_s 0.8
+Color 0.200000 0.200000 0.200000
+Spec_e 100.0
+Spec_s 0.1
 Refl_s 0.1
 Refr_s 0.0
 Refr_i 1.52

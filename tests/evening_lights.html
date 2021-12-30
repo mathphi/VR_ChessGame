@@ -87,6 +87,28 @@
         // Create the cubemap
         const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/Nalovardo', 1024);
 
+        // We define a light set (set of lights with some properties)
+        // WARNING: shader code designed for max 10 lights !
+        const lights_set = make_lights_set(gl);
+        // Light 0
+        const orange_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(0.0, 22.0, -50.0),
+            glMatrix.vec3.fromValues(5.0, 2.5, 0.0))
+
+        const yellow_light = lights_set.add_point_light(
+            glMatrix.vec3.fromValues(0.0, 20.0, 50.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 0.5))
+
+
+        // Spotlight
+        const spotlight1 = lights_set.add_spot_light(
+            glMatrix.vec3.fromValues(10.0, 5.0, 15.0),
+            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+            glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
+            20,
+            180
+        )
+
         // loading the object from a file
         const glass = load_obj('../objects/misc/glass.obj', false);
         const table = load_obj('../objects/misc/table.obj');
@@ -135,7 +157,7 @@
         const object2 = await make_object(gl, table, texture_plane, bump_map);
 
         const chessboard = await make_chessboard(
-            gl, physics_engine, '../'
+            gl,  physics_engine, lights_set, '../'
         );
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
@@ -176,31 +198,6 @@
         alarm_sec_obj.model = glMatrix.mat4.translate(alarm_sec_obj.model, alarm_sec_obj.model,
             glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
         
-
-        const spotlight_pos = glMatrix.vec3.fromValues(10.0, 5.0, 15.0);
-        const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
-
-        // We define a light set (set of lights with some properties)
-        // WARNING: shader code designed for max 10 lights !
-        const lights_set = make_lights_set(gl);
-        // Light 0
-        const orange_light = lights_set.add_point_light(
-            glMatrix.vec3.fromValues(0.0, 22.0, -50.0),
-            glMatrix.vec3.fromValues(5.0, 2.5, 0.0))
-
-        const yellow_light = lights_set.add_point_light(
-            glMatrix.vec3.fromValues(0.0, 20.0, 50.0),
-            glMatrix.vec3.fromValues(1.0, 1.0, 0.5))
-
-
-        // Spotlight
-        const spotlight1 = lights_set.add_spot_light(
-            spotlight_pos,
-            glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
-            spotlight_dir,
-            20,
-            180
-        )
 
         // Camera initial values
         const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
