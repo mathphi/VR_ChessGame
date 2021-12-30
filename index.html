@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>VR ChessGame</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0
+        }
+        #webgl_canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden
+        }
+        #fps {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            color: white;
+            font-size: 11pt;
+            text-shadow: black 0 0 10px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
+<div id="fps"></div>
+<div id="camera_mat"></div>
+<div id="proj_mat"></div>
+
+<script src="lib/gl-matrix-min.js"></script>
+
+<script type="text/javascript" src="scenes/evening_lights.js"></script>
+<script type="text/javascript" src="scenes/scene.js"></script>
+<script type="text/javascript" src="lib/camera.js"></script>
+<script type="text/javascript" src="lib/shaders.js"></script>
+<script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
+<script type="text/javascript" src="lib/chessboard.js"></script>
+<script type="text/javascript" src="lib/lights.js"></script>
+<script type="text/javascript" src="lib/objects.js"></script>
+<script type="text/javascript" src="lib/material.js"></script>
+<script type="text/javascript" src="lib/bump_mapping.js"></script>
+<script type="text/javascript" src="lib/textures.js"></script>
+<script type="text/javascript" src="lib/cubemap.js"></script>
+<script type="text/javascript" src="lib/physics.js"></script>
+<script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
+<script>
+    const MouseButtons = {
+        NONE:   0,
+        LEFT:   1,
+        RIGHT:  2,
+        MIDDLE: 4
+    }
+
+    function get_mouse_pos(canvas, evt) {
+        const rect = canvas.getBoundingClientRect();
+        return glMatrix.vec2.fromValues(
+            // Mouse coordinates relative to canvas (not screen)
+            evt.clientX - rect.left,
+            evt.clientY - rect.top
+        );
+    }
+
+    async function main() {
+        // Initialize GL and canvas
+        const canvas = document.getElementById('webgl_canvas');
+        let c_width = canvas.clientWidth;
+        let c_height = canvas.clientHeight;
+        canvas.width = c_width;
+        canvas.height = c_height;
+        const gl = canvas.getContext('webgl');
+        gl.enable(gl.DEPTH_TEST);
+
+        // PHYSICS ENGINE
+        const physics_engine = setupPhysics();
+
+        // LIGHTSET
+        // WARNING: shader code designed for max 10 lights !
+        const light_set = make_lights_set(gl);
+
+        // SHADERS
+        // Compile a shader program from the sources of "common_shader"
+        const shader_common = await make_shader(gl, 'common_shader', 'shaders');
+        // Compile a shader program from the sources of "cubemap_shader"
+        const shader_cubemap = await make_shader(gl, 'cubemap_shader', 'shaders');
+        // Compile a shader specific to move squares
+        const move_squares_shader = await make_shader(gl, 'move_squares_shader', 'shaders');
+        
+        // CHESSBOARD
+        // Make chessboard
+        const chessboard = await make_chessboard(
+            gl,  physics_engine, light_set,
+        );
+        // Positionning of the chessboard
+        chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
+        chessboard.set_rotationY(Math.PI / 2.0);
+
+        // CAMERA
+        // Camera initial values
+        const world_center  = glMatrix.vec3.fromValues(0.0, 0.0, 0.0);
+        const world_up      = glMatrix.vec3.fromValues(0.0, 1.0, 0.0);
+        const zenith        = 90.0;
+        const azimuth       = 90.0;
+        const radius        = 10.0;
+        // Create camera
+        const camera = make_camera(
+            canvas,
+            radius, zenith, azimuth,
+            world_up, world_center);
+        // Get camera projection
+        let projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+        // Camera position
+        const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
+
+        // SCENE
+        const scene = await make_scene('evening_lights', gl, camera, physics_engine, light_set);
+
+        // MOUSE EVENTS
+        function on_mouse_event(event) {
+            // Compute the picking ray from mouse cursor
+            const picking_ray = camera.get_picking_ray(
+                get_mouse_pos(canvas, event),
+                canvas.clientWidth, canvas.clientHeight
+            );
+
+            // Run picking using the computed ray
+            const picking_result = physics_engine.run_picking(picking_ray);
+
+            // If the ray hit an object in the world
+            if (picking_result.hasHit()) {
+                // Get the picked body and its intersection point in 3D space
+                const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
+                const picked_point = picking_result.get_m_hitPointWorld();
+
+                if (event.button === MouseButtons.RIGHT) {
+                    // If ctrl key is not pressed
+                    if (!event.ctrlKey) {
+                        // If the picked object comes from the chessboard
+                        if (picked_body.orig_object.from_chess !== undefined) {
+                            // Send the information to the chessboard
+                            chessboard.on_chess_clicked(
+                                picked_body.orig_object,
+                                glMatrix.vec3.fromValues(
+                                    picked_point.x(), picked_point.y(), picked_point.z()
+                                )
+                            );
+                        }
+                    }
+                    // If ctrl is pressed -> toggle the object's mass
+                    else {
+                        if (picked_body.orig_object.mass === undefined) {
+                            picked_body.orig_object.mass = 1.0;
+                        }
+                        const new_mass = (picked_body.orig_object.mass === 1.0 ? 0.0 : 1.0);
+                        picked_body.orig_object.set_physics_mass(new_mass);
+                        picked_body.orig_object.mass = new_mass;
+                        picked_body.orig_object.reset_physics_motion();
+                        picked_body.activate(false);
+                    }
+                }
+                else {// If the picked object comes from the chessboard
+                    if (picked_body.orig_object.from_chess !== undefined) {
+                        // Send the information to the chessboard
+                        chessboard.on_chess_hover(
+                            picked_body.orig_object,
+                            glMatrix.vec3.fromValues(
+                                picked_point.x(), picked_point.y(), picked_point.z()
+                            )
+                        );
+                    }
+                }
+            }
+        }
+
+        canvas.addEventListener("mousedown", on_mouse_event);
+        canvas.addEventListener("mousemove", on_mouse_event);
+
+
+        // ANIMATION
+        let prev_time = 0;
+        let delta_time = 0;
+
+        function animate(time) {
+            delta_time = time - prev_time;
+            prev_time = time;
+            physics_engine.update(delta_time/1000.0); // Delta time in seconds
+
+            scene.animate(time, delta_time);
+
+            /************************
+             **   Cubemap shader   **
+             ************************/
+
+            // Draw the cubemap first (using shader_cubemap)
+            shader_cubemap.use();
+            shader_cubemap.set_projection_uniform(projection);  
+            shader_cubemap.set_view_uniform(camera.get_view_matrix());
+            scene.draw_cubemap(shader_cubemap);
+
+            /***********************
+             **   Common shader   **
+             ***********************/
+
+            // We use the "normal shader"
+            shader_common.use();
+            shader_common.set_projection_uniform(projection);
+            shader_common.set_view_uniform(camera.get_view_matrix());
+
+            // Add the viewer position
+            gl.uniform3fv(u_cam_pos, camera.get_position());
+
+            // Draw the lights and objects
+            light_set.activate(shader_common);
+            scene.draw(shader_common);
+            chessboard.draw(shader_common);
+
+            /*****************************
+             **   Move squares shader   **
+             *****************************/
+
+            // Draw the cubemap first (using shader_cubemap)
+            move_squares_shader.use();
+            move_squares_shader.set_projection_uniform(projection);
+            move_squares_shader.set_view_uniform(camera.get_view_matrix());
+            chessboard.draw_move_squares(move_squares_shader);
+
+            fps(time);
+            window.requestAnimationFrame(animate); // While(True) loop!
+        }
+
+        // FPS COUNTER
+        let prev = 0;
+        const fpsElem = document.querySelector("#fps");
+        function fps(now) {
+            now *= 0.001;
+            const deltaTime = now - prev;
+            prev = now;
+            const fps = 1 / deltaTime;
+            fpsElem.textContent = 'FPS: ' + fps.toFixed(1);
+            return fps;
+        }
+
+        // CANVAS & CAMERA RESIZE WITH WEBPAGE
+        function onWindowResize() {
+            c_width = canvas.clientWidth;
+            c_height = canvas.clientHeight;
+
+            canvas.width = c_width;
+            canvas.height = c_height;
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+        }
+        window.onresize = onWindowResize;
+
+        animate(0);
+    }
+
+    Ammo().then(main);
+</script>
+</body>
+
+</html>
