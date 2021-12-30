@@ -97,12 +97,8 @@
         const cubemap = await make_cubemap(gl, '../objects/misc/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
-        const glass = load_obj('objects/Rook CoM.obj', false);
+        const glass = load_obj('../objects/misc/glass.obj', false);
         const table = load_obj('../objects/misc/table.obj');
-        /*
-        const knight = load_obj('objects/Knight.obj', false);
-        const chessboard = load_obj('../objects/chessboard.obj');
-        */
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');
@@ -136,21 +132,9 @@
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
 
-        // Set cube material properties
-        //object1.materials['default'].set_specular(100.0, 0.6);
-        //object1.materials['default'].set_refraction(0.3, 1.50);
-        // Make the plane material yellow
-        //object2.materials['default'].set_color(glMatrix.vec3.fromValues(1.0, 1.0, 0.0));
-
         // Translate the objects
         object1.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
         object2.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
-        /*
-        object3.set_position(glMatrix.vec3.fromValues(-2.3, 1.0, 0.0));
-        object3.model = glMatrix.mat4.rotateX(object3.model, object3.model, 60 / 180 * Math.PI);
-        object4.set_position(glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
-        object4.model = glMatrix.mat4.rotateZ(object4.model, object4.model, 0 / 180 * Math.PI);
-    */
 
         const spotlight_pos = glMatrix.vec3.fromValues(0.0, 2.0, -5.0);
         const spotlight_dir = glMatrix.vec3.fromValues(0.0, -1.0, 0.0);
@@ -316,8 +300,9 @@
             // Remove the green light after 22 seconds
             if (time > 10000 && !object1_moved) {
                 console.log("MOVED");
-                object1.move(glMatrix.vec3.fromValues(-2.3, 2.0, 0.0));
-                object1.update_physics_transform()
+                object1.set_position(glMatrix.vec3.fromValues(-8, 0.0, 16.0));
+                object1.set_rotation(glMatrix.vec3.fromValues(1.0, 0.0, 0.0), 30 * Math.PI / 180)
+                object1.update_physics_transform();
                 object1.get_physics_body().activate(false);
                 object1_moved = true;
             }
@@ -352,10 +337,7 @@
 
             object1.draw(shader_common);
             object2.draw(shader_common);
-            /*
-            object3.draw(shader_common);
-            object4.draw(shader_common);
-            */
+
             chessboard.draw(shader_common);
 
             /*****************************
