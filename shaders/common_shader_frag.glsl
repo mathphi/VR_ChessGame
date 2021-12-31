@@ -27,6 +27,7 @@ uniform float u_reflect_strength;
 uniform float u_refract_strength;
 uniform float u_refract_index;
 uniform bool u_force_no_texture;
+uniform bool u_force_no_bumpmap;
 
 // Camera position
 uniform vec3 u_cam_pos;
@@ -50,7 +51,7 @@ float strict_map(float value, float min_x, float max_x, float min_y, float max_y
 void main() {
     // Check is we must apply a bump map
     vec3 normal;
-    if (u_has_bumpmap) {
+    if (u_has_bumpmap && !u_force_no_bumpmap) {
         normal = texture2D(u_bump_map, vec2(v_texcoord.x, 1.0-v_texcoord.y)).rgb;
         normal = normal * 2.0 - 1.0;    // From color space to normal space
         normal = normalize(v_TBN * normal);

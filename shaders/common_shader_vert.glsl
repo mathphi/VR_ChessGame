@@ -16,6 +16,7 @@ uniform mat4 V;
 uniform mat4 P;
 
 uniform bool u_has_bumpmap;
+uniform bool u_force_no_bumpmap;
 
 void main() {
     // Apply model, view and projection to vertex position
@@ -26,7 +27,7 @@ void main() {
     v_normal = vec3(itM * vec4(a_normal, 1.0));
 
     // Compute TBN space only in case of bump-mapped object
-    if (u_has_bumpmap) {
+    if (u_has_bumpmap && !u_force_no_bumpmap) {
         // Compute the TBN space for this vertex
         vec3 T = normalize(vec3(M * vec4(a_tangent,   0.0)));
         vec3 B = normalize(vec3(M * vec4(a_bitangent, 0.0)));
