@@ -21,21 +21,25 @@
             font-size: 11pt;
             text-shadow: black 0 0 10px;
         }
+        #elapsed {
+            position: absolute;
+            top: 20px;
+            left: 120px;
+            color: white;
+            font-size: 11pt;
+            text-shadow: black 0 0 10px;
+        }
     </style>
 </head>
 <body>
 <canvas id="webgl_canvas" width="800" height="600" oncontextmenu="return false;"></canvas>
 <div id="fps"></div>
-<div id="camera_mat"></div>
-<div id="proj_mat"></div>
-
-<script src="lib/gl-matrix-min.js"></script>
-
+<div id="elapsed"></div>
+<script type="text/javascript" src="lib/gl-matrix-min.js"></script>
 <script type="text/javascript" src="scenes/evening_lights.js"></script>
 <script type="text/javascript" src="scenes/scene.js"></script>
 <script type="text/javascript" src="lib/camera.js"></script>
 <script type="text/javascript" src="lib/shaders.js"></script>
-<script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="lib/chessboard.js"></script>
 <script type="text/javascript" src="lib/lights.js"></script>
 <script type="text/javascript" src="lib/objects.js"></script>
@@ -44,6 +48,7 @@
 <script type="text/javascript" src="lib/textures.js"></script>
 <script type="text/javascript" src="lib/cubemap.js"></script>
 <script type="text/javascript" src="lib/physics.js"></script>
+<script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
 <script>
     const MouseButtons = {
@@ -177,6 +182,8 @@
         canvas.addEventListener("mousedown", on_mouse_event);
         canvas.addEventListener("mousemove", on_mouse_event);
 
+        // Elapsed time label element
+        const elapsedElem = document.querySelector("#elapsed");
 
         // ANIMATION
         let prev_time = 0;
@@ -185,8 +192,14 @@
         function animate(time) {
             delta_time = time - prev_time;
             prev_time = time;
+
+            // Update elapsed label
+            elapsedElem.textContent = "Elapsed: " + Number.parseFloat(time / 1000.0).toFixed(1);
+
+            // Update the physics
             physics_engine.update(delta_time/1000.0); // Delta time in seconds
 
+            // Animate the scene elements
             scene.animate(time, delta_time);
 
             /************************
