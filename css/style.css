@@ -44,7 +44,7 @@ body {
     text-align: center;
     #vertical-align: middle;
 }
-.notify_text {
+#notify_text {
     font-weight: bold;
     font-size: 20pt;
     font-family: Arial, sans-serif;

@@ -9,11 +9,9 @@
 <div id="fps"></div>
 <div id="elapsed"></div>
 <div id="canvas_overlay" hidden>
-    <span class="notify_text"></span>
+    <span id="notify_text"></span>
 </div>
 <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
-<script type="text/javascript" src="scenes/evening_lights.js"></script>
-<script type="text/javascript" src="scenes/scene.js"></script>
 <script type="text/javascript" src="lib/camera.js"></script>
 <script type="text/javascript" src="lib/shaders.js"></script>
 <script type="text/javascript" src="lib/chessboard.js"></script>
@@ -26,9 +24,55 @@
 <script type="text/javascript" src="lib/physics.js"></script>
 <script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
+<script type="text/javascript" src="scenes/scene.js"></script>
+<script type="text/javascript" src="scenes/evening_lights.js"></script>
 <script>
     // Prevent right-click context menu on the whole page
     document.addEventListener('contextmenu', event => event.preventDefault());
+
+    let _notify_timeout_id = null;
+    const _notify_overlay = document.querySelector("#canvas_overlay");
+    const _notify_text = document.querySelector("#notify_text");
+    function show_notify(html_content, duration, fade_duration = 200.0) {
+        _notify_text.innerHTML = html_content;
+        _notify_overlay.removeAttribute("hidden");
+
+        const init_t = performance.now();
+        function fade_in(t_abs) {
+            const t = t_abs - init_t;
+            const x = t / fade_duration;
+
+            // Fade opacity
+            _notify_overlay.style.opacity = x.toString();
+
+            if (t < fade_duration) {
+                window.requestAnimationFrame(fade_in);
+            } else {
+            }
+        }
+        fade_in(init_t);
+
+        clearTimeout(_notify_timeout_id);
+        setTimeout(hide_notify, duration);
+    }
+    function hide_notify(fade_duration = 200.0) {
+        const init_t = performance.now();
+
+        function fade_out(t_abs) {
+            const t = t_abs - init_t;
+            const x = t / fade_duration;
+
+            // Fade opacity
+            _notify_overlay.style.opacity = (1.0 - x).toString();
+
+            if (t < fade_duration) {
+                window.requestAnimationFrame(fade_out);
+            } else {
+                _notify_overlay.setAttribute('hidden', '');
+            }
+        }
+        fade_out(init_t);
+    }
 
     const MouseButtons = {
         NONE:   0,
@@ -97,13 +141,21 @@
 
         // SCENE
         const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
-        // Register callback
-        chessboard.register_on_turn_change_callback(scene.set_current_turn);
-        scene.set_current_turn(chessboard.get_turn());
 
         // Set initial camera position to special position 0 (defined by the scene)
         camera.set_special_orientation(0, 0.0);
 
+        function on_turn_change_event(turn) {
+            scene.set_current_turn(turn);
+        }
+
+        function on_game_event(event) {
+
+        }
+
+        // Register chessboard callbacks
+        chessboard.register_on_turn_change_callback(on_turn_change_event);
+        chessboard.register_on_game_event_callback(on_game_event);
 
         // MOUSE EVENTS
         function on_mouse_event(event) {
