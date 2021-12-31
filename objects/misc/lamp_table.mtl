@@ -9,7 +9,6 @@ Refl_s 0.5
 Refr_s 0.0
 Refr_i 0.46
 
-
 newmtl Lamp_Bulb
 Color 10.00000 10.000000 10.000000
 Spec_e 60.0

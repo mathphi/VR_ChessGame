@@ -84,9 +84,8 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
         180
     )
 
-    // CAMERA POSITIONNING
-    camera.set_numkey_camera_view(0, 35.0, 33.0, 20.0, glMatrix.vec3.fromValues(0.0, 0.0, 0.0));
-    camera.set_numkey_camera_view(1, 93.0, -87.0, 5.5, glMatrix.vec3.fromValues(-0.5, 0.0, 36.0));
+    // CUSTOM CAMERA POSITIONNING
+
 
     // OBJECTS PHYSICS
     physics_engine.register_object(table_obj, 0.0);
