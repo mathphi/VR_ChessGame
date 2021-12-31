@@ -6,10 +6,12 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     const table_tex = await load_texture(gl, 'textures/Wood.jpg', true);
     const ch_clk_tex = await load_texture(gl, 'textures/ch_clock_tex.png', true);
     const lamp_table_tex = await load_texture(gl, 'textures/lamp_table_tex.jpg', true);
+    const plant_tex = await load_texture(gl, 'textures/plant_tex.jpg', true);
 
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.png', true);
     const lamp_table_bm = await load_texture(gl, 'textures/lamp_table_bm.png', true);
+    const plant_bm = await load_texture(gl, 'textures/plant_bm.jpg', true);
 
     // OBJECTS
     // Loading objects from files
@@ -20,6 +22,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     const ch_clk_mesh = load_obj('objects/misc/ch_clock.obj', true);
     const ch_clk_hand_mesh = load_obj('objects/misc/ch_clock_hand.obj', false);
     const ch_clk_sec_hand_mesh = load_obj('objects/misc/clock_sec.obj', false);
+    const plant_mesh = load_obj('objects/misc/plant.obj', true);
     // Make the buffer and the functions to draw the objects
     const glass_obj = await make_object(gl, glass_mesh);
     const table_obj = await make_object(gl, table_mesh, table_tex, table_bm);
@@ -30,6 +33,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     const ch_clk_hand_r_obj = await make_object(gl, ch_clk_hand_mesh);
     const ch_clk_sec_hand_l_obj = await make_object(gl, ch_clk_sec_hand_mesh);
     const ch_clk_sec_hand_r_obj = await make_object(gl, ch_clk_sec_hand_mesh);
+    const plant_obj = await make_object(gl, plant_mesh, plant_tex, plant_bm);
 
     // Positioning of the objects
     glass_obj.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
@@ -57,6 +61,10 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     ch_clk_sec_hand_r_obj.set_position(glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
     ch_clk_sec_hand_r_obj.model = glMatrix.mat4.scale(ch_clk_sec_hand_r_obj.model, ch_clk_sec_hand_r_obj.model,
         glMatrix.vec3.fromValues(0.7, 0.7, 0.7));
+
+    plant_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, -20.0));
+    plant_obj.model = glMatrix.mat4.scale(plant_obj.model, plant_obj.model,
+        glMatrix.vec3.fromValues(3.0, 3.0, 3.0));
 
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
@@ -139,6 +147,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         ch_clk_hand_r_obj.draw(shader);
         ch_clk_sec_hand_l_obj.draw(shader);
         ch_clk_sec_hand_r_obj.draw(shader);
+        plant_obj.draw(shader);
     }
 
 
