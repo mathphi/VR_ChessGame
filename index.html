@@ -22,6 +22,7 @@
 <script type="text/javascript" src="lib/textures.js"></script>
 <script type="text/javascript" src="lib/cubemap.js"></script>
 <script type="text/javascript" src="lib/physics.js"></script>
+<script type="text/javascript" src="lib/ai.js"></script>
 <script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
 <script type="text/javascript" src="scenes/scene.js"></script>
@@ -119,7 +120,7 @@
         // CHESSBOARD
         // Make chessboard
         const chessboard = await make_chessboard(
-            gl,  physics_engine, light_set,
+            gl,  physics_engine, light_set, true
         );
         // Positioning of the chessboard
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
