@@ -5,15 +5,18 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     // TEXTURES
     const table_tex = await load_texture(gl, 'textures/Wood.jpg', true);
     const ch_clk_tex = await load_texture(gl, 'textures/ch_clock_tex.png', true);
+    const lamp_table_tex = await load_texture(gl, 'textures/lamp_table_tex.jpg', true);
+
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.png', true);
+    const lamp_table_bm = await load_texture(gl, 'textures/lamp_table_bm.png', true);
 
     // OBJECTS
     // Loading objects from files
     const glass_mesh = load_obj('objects/misc/glass.obj', false);
     const table_mesh = load_obj('objects/misc/table.obj', true);
     const lamp_mesh = load_obj('objects/misc/lamp.obj', false);
-    const lamp_table_mesh = load_obj('objects/misc/lamp_table.obj', false);
+    const lamp_table_mesh = load_obj('objects/misc/lamp_table.obj', true);
     // const clk_mesh = load_obj('objects/misc/clock_main_lp.obj', false);
     // const clk_min_mesh = load_obj('objects/misc/clock_min.obj', false);
     // const clk_sec_mesh = load_obj('objects/misc/clock_sec.obj', false);
@@ -24,7 +27,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     const glass_obj = await make_object(gl, glass_mesh);
     const table_obj = await make_object(gl, table_mesh, table_tex, table_bm);
     const lamp_obj = await make_object(gl, lamp_mesh);
-    const lamp_table_obj = await make_object(gl, lamp_table_mesh);
+    const lamp_table_obj = await make_object(gl, lamp_table_mesh, lamp_table_tex, lamp_table_bm);
     // const clk_obj = await make_object(gl, clk_mesh);
     // const clk_min_obj = await make_object(gl, clk_min_mesh);
     // const clk_sec_obj = await make_object(gl, clk_sec_mesh);
@@ -62,7 +65,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
     const c_lamp_table_mesh = await load_obj('objects/collision_boxes/c_lamp_table.obj', false);
-
+    
     // LIGHTS
     // Point Lights
     const orange_pl = light_set.add_point_light(
@@ -74,7 +77,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
         glMatrix.vec3.fromValues(1.0, 1.0, 0.5))
     // Spotlights
     const lamp_sl = light_set.add_spot_light(
-        glMatrix.vec3.fromValues(10.0, 5.0, 15.0),
+        glMatrix.vec3.fromValues(10.0, 7.0, 15.0),
         glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
         glMatrix.vec3.fromValues(0.0, -1.0, 0.0),
         20,
