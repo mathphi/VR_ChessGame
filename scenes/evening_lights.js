@@ -44,8 +44,6 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
         glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
 
     lamp_table_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, 15.0));
-    lamp_table_obj.model = glMatrix.mat4.scale(lamp_table_obj.model, lamp_table_obj.model,
-        glMatrix.vec3.fromValues(0.20, 0.20, 0.20));
 
     // clk_obj.model = glMatrix.mat4.translate(clk_obj.model, clk_obj.model,
     //     glMatrix.vec3.fromValues(0.0, -3.3, -12.0));
@@ -63,6 +61,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
 
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
+    const c_lamp_table_mesh = await load_obj('objects/collision_boxes/c_lamp_table.obj', false);
 
     // LIGHTS
     // Point Lights
@@ -90,6 +89,7 @@ async function make_evening_lights_scene(gl, camera, physics_engine, light_set){
     physics_engine.register_object(table_obj, 0.0);
     physics_engine.register_object(glass_obj, 1.0);
     physics_engine.register_object(ch_clk_obj, 0.0, c_ch_clk_mesh);
+    physics_engine.register_object(lamp_table_obj, 0.0, c_lamp_table_mesh);
 
     function animate(time, delta_time){
         // Animate clock hands
