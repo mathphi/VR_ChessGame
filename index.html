@@ -120,7 +120,10 @@
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
         // SCENE
-        const scene = await make_scene('evening_lights', gl, camera, physics_engine, light_set);
+        const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
+        // Register callback
+        chessboard.register_on_turn_change_callback(scene.set_current_turn);
+        scene.set_current_turn(chessboard.get_turn());
 
         // MOUSE EVENTS
         function on_mouse_event(event) {
