@@ -31,7 +31,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     const ch_clk_sec_hand_l_obj = await make_object(gl, ch_clk_sec_hand_mesh);
     const ch_clk_sec_hand_r_obj = await make_object(gl, ch_clk_sec_hand_mesh);
 
-    // Positionning of the objects
+    // Positioning of the objects
     glass_obj.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
 
     table_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
