@@ -195,10 +195,10 @@
             prev_time = time;
 
             // Update elapsed label
-            elapsedElem.textContent = "Elapsed: " + Number.parseFloat(time / 1000.0).toFixed(1);
+            elapsedElem.textContent = "Elapsed: " + (time / 1000.0).toFixed(1);
 
             // Update the physics
-            physics_engine.update(delta_time/1000.0); // Delta time in seconds
+            physics_engine.update(delta_time / 1000.0); // Delta time in seconds
 
             // Animate the scene elements
             scene.animate(time, delta_time);
