@@ -26,6 +26,7 @@ uniform float u_specular_strength;
 uniform float u_reflect_strength;
 uniform float u_refract_strength;
 uniform float u_refract_index;
+uniform bool u_force_no_texture;
 
 // Camera position
 uniform vec3 u_cam_pos;
@@ -122,7 +123,7 @@ void main() {
     vec4 object_color = vec4(u_object_color, 1.0);
 
     // If we must paint with a texture...
-    if (u_has_texture) {
+    if (u_has_texture && !u_force_no_texture) {
         object_color = texture2D(u_texture, vec2(v_texcoord.x, 1.0-v_texcoord.y));
     }
 
