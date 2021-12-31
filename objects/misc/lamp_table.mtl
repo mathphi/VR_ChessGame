@@ -10,12 +10,13 @@ Refr_s 0.0
 Refr_i 0.46
 
 newmtl Lamp_Bulb
-Color 10.00000 10.000000 10.000000
+Color 20.00000 20.000000 20.000000
 Spec_e 60.0
 Spec_s 0.8
 Refl_s 0.5
 Refr_s 0.0
 Refr_i 1.52
+NoTex Yes
 
 newmtl Lamp_Metal_Bar
 Color 0.200000 0.200000 0.200000
