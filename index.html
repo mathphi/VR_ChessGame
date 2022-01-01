@@ -17,6 +17,9 @@
 <div id="canvas_overlay" hidden>
     <span id="notify_text"></span>
 </div>
+<div id="page-loader-overlay">
+    <div class="loader"></div>
+</div>
 <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
 <script type="text/javascript" src="lib/camera.js"></script>
 <script type="text/javascript" src="lib/shaders.js"></script>
@@ -36,6 +39,8 @@
 <script>
     // Prevent right-click context menu on the whole page
     document.addEventListener('contextmenu', event => event.preventDefault());
+
+    const _page_loader_overlay = document.querySelector("#page-loader-overlay");
 
     // Top-bar elements
     const _auto_cam_input = document.querySelector("#auto-cam");
@@ -259,6 +264,9 @@
 
         // Elapsed time label element
         const elapsedElem = document.querySelector("#elapsed");
+
+        // Remove the page loader overlay
+        _page_loader_overlay.setAttribute("hidden", true);
 
         // ANIMATION
         let prev_time = 0;
