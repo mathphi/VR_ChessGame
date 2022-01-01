@@ -73,7 +73,6 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
 
     // CUSTOM CAMERA POSITIONING
 
-
     // OBJECTS PHYSICS
     physics_engine.register_object(table_obj, 0.0);
     physics_engine.register_object(glass_obj, 1.0);
@@ -100,15 +99,17 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         );
     }
 
-    function animate(time, delta_time){
+    const z_axis = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
+
+    function animate(time, delta_time) {
         // Animate clock hands
-        if(_current_turn === 'w'){
-            ch_clk_hand_l_obj.model = glMatrix.mat4.rotateZ(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model, 6*delta_time / (60*1000*180) * Math.PI);
-            ch_clk_sec_hand_l_obj.model = glMatrix.mat4.rotateZ(ch_clk_sec_hand_l_obj.model, ch_clk_sec_hand_l_obj.model, 6*delta_time / (1000*180) * Math.PI);
+        if (_current_turn === 'w') {
+            ch_clk_hand_l_obj.rotate(z_axis, 6*delta_time / (60*1000*180) * Math.PI);
+            ch_clk_sec_hand_l_obj.rotate(z_axis, 6*delta_time / (1000*180) * Math.PI);
         }
-        else{
-            ch_clk_hand_r_obj.model = glMatrix.mat4.rotateZ(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model, 6*delta_time / (60*1000*180)  * Math.PI);
-            ch_clk_sec_hand_r_obj.model = glMatrix.mat4.rotateZ(ch_clk_sec_hand_r_obj.model, ch_clk_sec_hand_r_obj.model, 6*delta_time / (1000*180) * Math.PI);
+        else {
+            ch_clk_hand_r_obj.rotate(z_axis, 6*delta_time / (60*1000*180)  * Math.PI);
+            ch_clk_sec_hand_r_obj.rotate(z_axis, 6*delta_time / (1000*180) * Math.PI);
         }
 
         // Draw loop
@@ -122,7 +123,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
             ) / 2.0;
             
         light_set.set_light_color(orange_pl, 
-            glMatrix.vec3.fromValues(5.0 + 1.0*light_int, 2.5+0.5*light_int, 0.0)
+            glMatrix.vec3.fromValues(5.0 + light_int, 2.5+0.5*light_int, 0.0)
         );
     }
 

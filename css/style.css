@@ -23,6 +23,11 @@ body {
     color: white;
     font-size: 11pt;
     text-shadow: black 0 0 10px;
+    min-width: 120px;
+    max-width: 200px;
+    margin: 0;
+    width: 18%;
+    text-align: center;
 }
 input[type="checkbox"] {
     vertical-align: middle;
