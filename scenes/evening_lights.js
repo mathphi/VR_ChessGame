@@ -17,12 +17,13 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     // Loading objects from files
     const glass_mesh = load_obj('objects/misc/glass.obj', false);
     const table_mesh = load_obj('objects/misc/table.obj', true);
-    const lamp_mesh = load_obj('objects/misc/lamp.obj', false);
+    const lamp_mesh = load_obj('objects/misc/lamp.obj', false, glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
     const lamp_table_mesh = load_obj('objects/misc/lamp_table.obj', true);
     const ch_clk_mesh = load_obj('objects/misc/ch_clock.obj', true);
-    const ch_clk_hand_mesh = load_obj('objects/misc/ch_clock_hand.obj', false);
-    const ch_clk_sec_hand_mesh = load_obj('objects/misc/clock_sec.obj', false);
-    const plant_mesh = load_obj('objects/misc/plant.obj', true);
+    const ch_clk_hand_mesh = load_obj('objects/misc/ch_clock_hand.obj', false, glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
+    const ch_clk_sec_hand_mesh = load_obj('objects/misc/clock_sec.obj', false, glMatrix.vec3.fromValues(0.7, 0.7, 0.7));
+    const plant_mesh = load_obj('objects/misc/plant.obj', true, glMatrix.vec3.fromValues(3.0, 3.0, 3.0));
+
     // Make the buffer and the functions to draw the objects
     const glass_obj = await make_object(gl, glass_mesh);
     const table_obj = await make_object(gl, table_mesh, table_tex, table_bm);
@@ -39,32 +40,14 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     glass_obj.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
 
     table_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
-    table_obj.model = glMatrix.mat4.scale(table_obj.model, table_obj.model,
-        glMatrix.vec3.fromValues(1.0, 1.0, 1.0));
-
     lamp_obj.set_position(glMatrix.vec3.fromValues(0.0, -40.0, -50.0));
-    lamp_obj.model = glMatrix.mat4.scale(lamp_obj.model, lamp_obj.model,
-        glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
-
     lamp_table_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, 15.0));
-
     ch_clk_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, -12.0));
     ch_clk_hand_l_obj.set_position(glMatrix.vec3.fromValues(-1.5, -3.3, -10.7));
-    ch_clk_hand_l_obj.model = glMatrix.mat4.scale(ch_clk_hand_l_obj.model, ch_clk_hand_l_obj.model,
-        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
     ch_clk_hand_r_obj.set_position(glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
-    ch_clk_hand_r_obj.model = glMatrix.mat4.scale(ch_clk_hand_r_obj.model, ch_clk_hand_r_obj.model,
-        glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
     ch_clk_sec_hand_l_obj.set_position(glMatrix.vec3.fromValues(-1.5, -3.3, -10.7));
-    ch_clk_sec_hand_l_obj.model = glMatrix.mat4.scale(ch_clk_sec_hand_l_obj.model, ch_clk_sec_hand_l_obj.model,
-        glMatrix.vec3.fromValues(0.7, 0.7, 0.7));
     ch_clk_sec_hand_r_obj.set_position(glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
-    ch_clk_sec_hand_r_obj.model = glMatrix.mat4.scale(ch_clk_sec_hand_r_obj.model, ch_clk_sec_hand_r_obj.model,
-        glMatrix.vec3.fromValues(0.7, 0.7, 0.7));
-
     plant_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, -20.0));
-    plant_obj.model = glMatrix.mat4.scale(plant_obj.model, plant_obj.model,
-        glMatrix.vec3.fromValues(3.0, 3.0, 3.0));
 
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
@@ -95,7 +78,12 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     physics_engine.register_object(table_obj, 0.0);
     physics_engine.register_object(glass_obj, 1.0);
     physics_engine.register_object(ch_clk_obj, 0.0, c_ch_clk_mesh);
+    physics_engine.register_object(ch_clk_hand_l_obj, 0.0);
+    physics_engine.register_object(ch_clk_hand_r_obj, 0.0);
+    physics_engine.register_object(ch_clk_sec_hand_l_obj, 0.0);
+    physics_engine.register_object(ch_clk_sec_hand_r_obj, 0.0);
     physics_engine.register_object(lamp_table_obj, 0.0, c_lamp_table_mesh);
+    physics_engine.register_object(plant_obj, 0.0);
 
     let _current_turn = chessboard.get_turn();
 
@@ -159,12 +147,24 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         plant_obj.draw(shader);
     }
 
+    function force_physics(force) {
+        lamp_table_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
+        ch_clk_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
+        ch_clk_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        ch_clk_hand_r_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        ch_clk_sec_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        ch_clk_sec_hand_r_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        plant_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
+    }
+
 
     return{
         animate: animate,
         draw_cubemap: draw_cubemap,
         draw: draw,
         set_current_turn: set_current_turn,
+        table: table_obj,
+        force_physics: force_physics
     }
 }
 

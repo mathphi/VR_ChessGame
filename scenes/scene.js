@@ -15,9 +15,11 @@ async function make_niagara_falls_scene(gl, camer, chessboard, physics_engine, l
 
 
     return{
-        draw:draw,
-        draw_cubemap:draw_cubemap,
-        animate:animate,
+        draw: draw,
+        draw_cubemap: draw_cubemap,
+        animate: animate,
+        table: table,
+        force_physics: force_physics,
     }
 }
 

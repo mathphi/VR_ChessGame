@@ -9,7 +9,7 @@
 <div id="top-bar">
     <div id="fps" style="width: 100px;"></div>
     <div id="elapsed" style="width: 120px;"></div>
-    <div style="width: 100px;">
+    <div style="width: 120px;">
         <input type="checkbox" id="auto-cam" name="auto-cam" checked>
         <label for="auto-cam">Camera auto</label>
     </div>
@@ -40,6 +40,7 @@
     // Prevent right-click context menu on the whole page
     document.addEventListener('contextmenu', event => event.preventDefault());
 
+    // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
 
     // Top-bar elements
@@ -245,7 +246,8 @@
                         picked_body.activate(false);
                     }
                 }
-                else {// If the picked object comes from the chessboard
+                else {
+                    // If the picked object comes from the chessboard
                     if (picked_body.orig_object.from_chess !== undefined) {
                         // Send the information to the chessboard
                         chessboard.on_chess_hover(
@@ -262,11 +264,51 @@
         canvas.addEventListener("mousedown", on_mouse_event);
         canvas.addEventListener("mousemove", on_mouse_event);
 
+        let phys_forced = false;
+        document.addEventListener("keydown", function (event) {
+            const x_axis = glMatrix.vec3.fromValues(1.0, 0.0, 0.0);
+            const z_axis = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
+
+            switch (event.key) {
+                case 'p':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        chessboard.force_phycics(!phys_forced);
+                        scene.force_physics(!phys_forced);
+                        phys_forced = !phys_forced;
+                    }
+                    break;
+                case 'z':
+                    if (phys_forced) {
+                        scene.table.rotate(x_axis, 5.0 * Math.PI / 180.0);
+                    }
+                    break;
+                case 's':
+                    if (phys_forced) {
+                        scene.table.rotate(x_axis, -5.0 * Math.PI / 180.0);
+                    }
+                    break;
+                case 'q':
+                    if (phys_forced) {
+                        scene.table.rotate(z_axis, 5.0 * Math.PI / 180.0);
+                    }
+                    break;
+                case 'd':
+                    if (phys_forced) {
+                        scene.table.rotate(z_axis, -5.0 * Math.PI / 180.0);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+        
+
         // Elapsed time label element
         const elapsedElem = document.querySelector("#elapsed");
 
         // Remove the page loader overlay
-        _page_loader_overlay.setAttribute("hidden", true);
+        _page_loader_overlay.setAttribute("hidden", '');
 
         // ANIMATION
         let prev_time = 0;
