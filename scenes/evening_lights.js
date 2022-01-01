@@ -88,7 +88,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         180
     );
 
-    // CUSTOM CAMERA POSITIONNING
+    // CUSTOM CAMERA POSITIONING
 
 
     // OBJECTS PHYSICS
@@ -101,6 +101,15 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
 
     function set_current_turn(turn){
         _current_turn = turn;
+
+        // Change keyboard shortcut 5 as a function of the player
+        camera.set_numkey_camera_view(
+            5,
+            1.0,
+            turn === 'w' ? 180.0 : 0.0,
+            16.0,
+            glMatrix.vec3.fromValues(0.0, 0.0, 0.0)
+        );
     }
 
     function animate(time, delta_time){
@@ -152,10 +161,10 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
 
 
     return{
-        animate:animate,
-        draw_cubemap:draw_cubemap,
-        draw:draw,
-        set_current_turn:set_current_turn,
+        animate: animate,
+        draw_cubemap: draw_cubemap,
+        draw: draw,
+        set_current_turn: set_current_turn,
     }
 }
 

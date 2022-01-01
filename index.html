@@ -6,8 +6,14 @@
 </head>
 <body>
 <canvas id="webgl_canvas" width="800" height="600"></canvas>
-<div id="fps"></div>
-<div id="elapsed"></div>
+<div id="top-bar">
+    <div id="fps" style="width: 100px;"></div>
+    <div id="elapsed" style="width: 120px;"></div>
+    <div style="width: 100px;">
+        <input type="checkbox" id="auto-cam" name="auto-cam" checked>
+        <label for="auto-cam">Camera auto</label>
+    </div>
+</div>
 <div id="canvas_overlay" hidden>
     <span id="notify_text"></span>
 </div>
@@ -31,6 +37,10 @@
     // Prevent right-click context menu on the whole page
     document.addEventListener('contextmenu', event => event.preventDefault());
 
+    // Top-bar elements
+    const _auto_cam_input = document.querySelector("#auto-cam");
+
+    // Notification functions
     let _notify_timeout_id = null;
     const _notify_overlay = document.querySelector("#canvas_overlay");
     const _notify_text = document.querySelector("#notify_text");
@@ -126,7 +136,7 @@
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
         // Enabling the AI (for test)
-        chessboard.enable_ai(true, 0);
+        chessboard.enable_ai(false, 0);
 
         // CAMERA
         // Create camera
@@ -144,12 +154,25 @@
 
         // SCENE
         const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
+        scene.set_current_turn(chessboard.get_turn());
 
         // Set initial camera position to special position 0 (defined by the scene)
         camera.set_special_orientation(0, 0.0);
 
+        // Change camera view to player
+        setTimeout(function () {
+            camera.set_special_orientation(2);
+        }, 2000.0);
+
         function on_turn_change_event(turn) {
             scene.set_current_turn(turn);
+
+            // Change camera view to player
+            if (!chessboard.is_ai_enabled() && _auto_cam_input.checked) {
+                setTimeout(function () {
+                    camera.set_special_orientation(turn === 'w' ? 2 : 8, 2000.0);
+                }, 1000.0);
+            }
         }
 
         function on_game_event(event) {

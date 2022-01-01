@@ -38,7 +38,7 @@
         const shader_cubemap = await make_shader(gl, 'cubemap_shader', '../shaders');
 
         // Create the cubemap
-        const cubemap = await make_cubemap(gl, '../objects/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
+        const cubemap = await make_cubemap(gl, 'objects/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
         const cube = await load_obj('objects/cube.obj');
