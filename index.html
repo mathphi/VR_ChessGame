@@ -126,7 +126,7 @@
         chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
         chessboard.set_rotationY(Math.PI / 2.0);
         // Enabling the AI (for test)
-        chessboard.enable_ai(false, 0);
+        chessboard.enable_ai(true, 0);
 
         // CAMERA
         // Create camera
@@ -153,7 +153,21 @@
         }
 
         function on_game_event(event) {
-
+            if (event & ChessSituation.Check) {
+                show_notify("Check!", 2000.0);
+            }
+            else if (event & ChessSituation.Checkmate) {
+                show_notify("Checkmate!", 2000.0);
+            }
+            else if (event & ChessSituation.Stalemate) {
+                show_notify("Stalemate!", 2000.0);
+            }
+            else if (event & ChessSituation.Draw) {
+                show_notify("Draw!", 2000.0);
+            }
+            else if (event & ChessSituation.Threefold) {
+                show_notify("Threefold!", 2000.0);
+            }
         }
 
         // Register chessboard callbacks
