@@ -48,6 +48,8 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     ch_clk_sec_hand_r_obj.set_position(glMatrix.vec3.fromValues(1.5, -3.3, -10.7));
     plant_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, -20.0));
 
+    //TODO: reset clock hands position when starting a new game
+
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_obj('objects/collision_boxes/c_ch_clock.obj', false);
     const c_lamp_table_mesh = await load_obj('objects/collision_boxes/c_lamp_table.obj', false);
@@ -89,8 +91,15 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         _current_turn = turn;
 
         // Change keyboard shortcut 5 as a function of the player
-        camera.set_numkey_camera_view(
+        camera.set_key_camera_view(
             5,
+            1.0,
+            turn === 'w' ? 180.0 : 0.0,
+            16.0,
+            glMatrix.vec3.fromValues(0.0, 0.0, 0.0)
+        );
+        camera.set_key_camera_view(
+            ' ',
             1.0,
             turn === 'w' ? 180.0 : 0.0,
             16.0,

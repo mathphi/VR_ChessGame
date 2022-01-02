@@ -115,6 +115,21 @@
         fade_out(init_t);
     }
 
+    function show_game_won(winner) {
+        show_notify(
+            `<span style="font-size: 36pt;">` +
+            `${winner === 'w' ? "Light" : "Dark"} pieces won!` +
+            `</span>`,
+            -1
+        );
+    }
+    function show_game_drawn() {
+        show_notify(
+            `<span style="font-size: 36pt;">Drawn game!</span>`,
+            -1
+        );
+    }
+
     const MouseButtons = {
         NONE:   0,
         LEFT:   1,
@@ -230,32 +245,33 @@
         }
 
         function on_game_event(event, player) {
+            console.log("Game event received (flags: " + event + ", player: '" + player + "')");
             if (event & ChessSituation.Checkmate) {
                 show_notify("Checkmate!", 2000.0);
                 setTimeout(function () {
-                        show_notify(
-                            `<span style="font-size: 36pt;">` +
-                                `${player === 'w' ? "Light" : "Dark"} pieces won!` +
-                            `</span>`,
-                            -1
-                        );
+                        show_game_won(player, 2500.0);
+                    },
+                    2500.0
+                );
+            }
+            else if (event & ChessSituation.InsufMat) {
+                show_notify("Insufficient material!!", 2000.0);
+                setTimeout(function () {
+                        show_game_drawn();
+                    },
+                    2500.0
+                );
+            }
+            else if (event & ChessSituation.Draw) {
+                show_notify("Draw!", 2000.0);
+                setTimeout(function () {
+                        show_game_drawn();
                     },
                     2500.0
                 );
             }
             else if (event & ChessSituation.Check) {
                 show_notify("Check!", 2000.0);
-            }
-            else if (event & ChessSituation.Draw) {
-                show_notify("Draw!", 2000.0);
-                setTimeout(function () {
-                        show_notify(
-                            `<span style="font-size: 36pt;">Drawn game!</span>`,
-                            -1
-                        );
-                    },
-                    2500.0
-                );
             }
             else if (event & ChessSituation.Threefold) {
                 show_notify("Threefold!", 2000.0);
