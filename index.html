@@ -186,8 +186,10 @@
         on_ai_config_changed();
 
         function restart_new_game() {
-            chessboard.reset_game();
-            hide_notify();
+            if (confirm("Are you sure you want to start a new game?")) {
+                chessboard.reset_game();
+                hide_notify();
+            }
         }
 
         // CAMERA
