@@ -38,7 +38,6 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
 
     // Positioning of the objects
     glass_obj.set_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0));
-
     table_obj.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
     lamp_obj.set_position(glMatrix.vec3.fromValues(0.0, -40.0, -50.0));
     lamp_table_obj.set_position(glMatrix.vec3.fromValues(10.0, -5.0, 15.0));
