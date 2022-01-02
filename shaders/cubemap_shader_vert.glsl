@@ -1,7 +1,9 @@
 attribute vec3 a_position;
 attribute vec2 a_texcoord;
 attribute vec3 a_normal;
+
 varying vec3 v_texcoord;
+varying vec3 v_normal;
 
 uniform mat4 M;
 uniform mat4 itM;
@@ -22,4 +24,5 @@ void main() {
 
     // We set the texture coordinates accordingly to the position.
     v_texcoord = frag_coord.xyz;
+    v_normal = a_normal;
 }

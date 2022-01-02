@@ -20,5 +20,6 @@ void main() {
     // Transform the normals according to the model matrix
     v_normal = vec3(itM * vec4(a_normal, 1.0));
 
+    v_texcoord = a_texcoord;
     v_frag_coord  = frag_coord.xyz;
 }
