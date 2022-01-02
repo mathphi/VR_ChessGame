@@ -93,7 +93,7 @@
         clearTimeout(_notify_timeout_id);
 
         if (duration > 0.0) {
-            setTimeout(hide_notify, duration);
+            _notify_timeout_id = setTimeout(hide_notify, duration);
         }
     }
     function hide_notify(fade_duration = 200.0) {
@@ -118,7 +118,7 @@
     function show_game_won(winner) {
         show_notify(
             `<span style="font-size: 36pt;">` +
-            `${winner === 'w' ? "Light" : "Dark"} pieces won!` +
+            `${winner === 'w' ? "White" : "Black"} pieces won!` +
             `</span>`,
             -1
         );
@@ -135,6 +135,22 @@
         LEFT:   1,
         RIGHT:  2,
         MIDDLE: 4
+    }
+
+    let _mouse_action_button = MouseButtons.LEFT;
+    let _mouse_view_button   = MouseButtons.RIGHT;
+
+    function toggle_mouse_buttons() {
+        if (_mouse_action_button === MouseButtons.LEFT) {
+            _mouse_action_button = MouseButtons.RIGHT;
+            _mouse_view_button   = MouseButtons.LEFT;
+        }
+        else {
+            _mouse_action_button = MouseButtons.LEFT;
+            _mouse_view_button   = MouseButtons.RIGHT;
+        }
+
+        show_notify("Mouse buttons inverted", 2000.0);
     }
 
     function get_mouse_pos(canvas, evt) {
@@ -177,9 +193,6 @@
         const chessboard = await make_chessboard(
             gl,  physics_engine, light_set
         );
-        // Positioning of the chessboard
-        chessboard.set_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0));
-        chessboard.set_rotationY(Math.PI / 2.0);
 
         // Event when AI checkbox is changed
         _ai_enabled_input.addEventListener('change', on_ai_config_changed);
@@ -202,7 +215,9 @@
 
         function restart_new_game() {
             if (confirm("Are you sure you want to start a new game?")) {
-                chessboard.reset_game();
+                _phys_forced = false;
+                scene.reset(500.0);
+                setTimeout(chessboard.reset_game, 600.0);
                 hide_notify();
             }
         }
@@ -248,27 +263,9 @@
             console.log("Game event received (flags: " + event + ", player: '" + player + "')");
             if (event & ChessSituation.Checkmate) {
                 show_notify("Checkmate!", 2000.0);
-                setTimeout(function () {
-                        show_game_won(player, 2500.0);
-                    },
-                    2500.0
-                );
             }
             else if (event & ChessSituation.InsufMat) {
-                show_notify("Insufficient material!!", 2000.0);
-                setTimeout(function () {
-                        show_game_drawn();
-                    },
-                    2500.0
-                );
-            }
-            else if (event & ChessSituation.Draw) {
-                show_notify("Draw!", 2000.0);
-                setTimeout(function () {
-                        show_game_drawn();
-                    },
-                    2500.0
-                );
+                show_notify("Insufficient material!", 2000.0);
             }
             else if (event & ChessSituation.Check) {
                 show_notify("Check!", 2000.0);
@@ -279,6 +276,19 @@
             else if (event & ChessSituation.Stalemate) {
                 show_notify("Stalemate!", 2000.0);
             }
+
+            if (event & ChessSituation.Checkmate) {
+                setTimeout(function () {
+                        show_game_won(player);
+                    },
+                    2500.0
+                );
+            }
+            else if (event & ChessSituation.Draw) {
+                setTimeout(show_game_drawn, 2500.0);
+            }
+
+            scene.on_game_event(event);
         }
 
         // Register chessboard callbacks
@@ -302,7 +312,8 @@
                 const picked_body = Ammo.castObject(picking_result.get_m_collisionObject(), Ammo.btRigidBody);
                 const picked_point = picking_result.get_m_hitPointWorld();
 
-                if (event.button === MouseButtons.RIGHT) {
+                // If this event was fired by a mousedown event and action button is pressed
+                if (event.buttons & _mouse_action_button && event.type === "mousedown") {
                     // If ctrl key is not pressed
                     if (!event.ctrlKey) {
                         // If the picked object comes from the chessboard
@@ -346,7 +357,7 @@
         canvas.addEventListener("mousedown", on_mouse_event);
         canvas.addEventListener("mousemove", on_mouse_event);
 
-        let phys_forced = false;
+        let _phys_forced = false;
         document.addEventListener("keydown", function (event) {
             const x_axis = glMatrix.vec3.fromValues(1.0, 0.0, 0.0);
             const z_axis = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
@@ -355,29 +366,53 @@
                 case 'p':
                     if (event.ctrlKey) {
                         event.preventDefault();
-                        chessboard.force_phycics(!phys_forced);
-                        scene.force_physics(!phys_forced);
-                        phys_forced = !phys_forced;
+                        chessboard.force_phycics(!_phys_forced);
+                        scene.force_physics(!_phys_forced);
+                        _phys_forced = !_phys_forced;
+
+                        show_notify(_phys_forced ? "Objects unlocked" : "Objects locked", 1000.0);
                     }
                     break;
                 case 'z':
-                    if (phys_forced) {
-                        scene.table.rotate(x_axis, 5.0 * Math.PI / 180.0);
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        // Crtl+Z -> undo last action
+                        chessboard.undo_game();
+                        hide_notify();
+                    }
+                    else {
+                        if (_phys_forced) {
+                            scene.table.rotate(z_axis, -5.0 * Math.PI / 180.0);
+                        }
                     }
                     break;
                 case 's':
-                    if (phys_forced) {
-                        scene.table.rotate(x_axis, -5.0 * Math.PI / 180.0);
-                    }
-                    break;
-                case 'q':
-                    if (phys_forced) {
+                    if (_phys_forced) {
                         scene.table.rotate(z_axis, 5.0 * Math.PI / 180.0);
                     }
                     break;
+                case 'q':
+                    if (_phys_forced) {
+                        scene.table.rotate(x_axis, -5.0 * Math.PI / 180.0);
+                    }
+                    break;
                 case 'd':
-                    if (phys_forced) {
-                        scene.table.rotate(z_axis, -5.0 * Math.PI / 180.0);
+                    if (_phys_forced) {
+                        scene.table.rotate(x_axis, 5.0 * Math.PI / 180.0);
+                    }
+                    break;
+                case 'g':
+                    // CTRL + G -> new game
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        restart_new_game();
+                    }
+                    break;
+                case 'm':
+                    // CTRL + M -> invert mouse buttons
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        toggle_mouse_buttons();
                     }
                     break;
                 default:

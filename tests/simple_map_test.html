@@ -20,6 +20,9 @@
 <script type="text/javascript" src="../lib/textures.js"></script>
 <script type="text/javascript" src="../lib/cubemap.js"></script>
 <script>
+
+    const _mouse_view_button = 1;
+
     async function main() {
         // Boilerplate code
         const canvas = document.getElementById('webgl_canvas');
@@ -60,10 +63,10 @@
 
         // Asynchronous call, we waited till the object was ready
         // Make the buffer and the functions to draw the object:
-        const object1 = await make_object(gl, cube, texture_cube, bump_map_cube);
-        const object2 = await make_object(gl, plane, null, bump_map);
-        const object3 = await make_object(gl, torus, null, null, material_metal);
-        const object4 = await make_object(gl, chessboard);
+        const object1 = make_object(gl, cube, texture_cube, bump_map_cube);
+        const object2 = make_object(gl, plane, null, bump_map);
+        const object3 = make_object(gl, torus, null, null, material_metal);
+        const object4 = make_object(gl, chessboard);
 
         // Set cube material properties
         object1.materials['default'].set_specular(100.0, 0.6);
