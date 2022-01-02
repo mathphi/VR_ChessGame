@@ -17,6 +17,7 @@ body {
     right: 0;
     background-color: rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    font-family: Arial, sans-serif;
 }
 #top-bar div {
     display: inline-block;
