@@ -28,8 +28,8 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     const plant_tex = await load_texture(gl, 'textures/plant_tex.jpg', true);
 
     // BUMP MAPS
-    const table_bm = await load_texture(gl, 'textures/WoodBumpMap.png', true);
-    const lamp_table_bm = await load_texture(gl, 'textures/lamp_table_bm.png', true);
+    const table_bm = await load_texture(gl, 'textures/WoodBumpMap.jpg', true);
+    const lamp_table_bm = await load_texture(gl, 'textures/lamp_table_bm.jpg', true);
     const plant_bm = await load_texture(gl, 'textures/plant_bm.jpg', true);
 
     // OBJECTS
