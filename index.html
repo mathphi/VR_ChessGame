@@ -123,9 +123,9 @@
             -1
         );
     }
-    function show_game_drawn() {
+    function show_game_draw() {
         show_notify(
-            `<span style="font-size: 36pt;">Drawn game!</span>`,
+            `<span style="font-size: 36pt;">Draw!</span>`,
             -1
         );
     }
@@ -285,7 +285,7 @@
                 );
             }
             else if (event & ChessSituation.Draw) {
-                setTimeout(show_game_drawn, 2500.0);
+                setTimeout(show_game_draw, 2500.0);
             }
 
             scene.on_game_event(event);
