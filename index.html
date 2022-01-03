@@ -352,6 +352,9 @@
                     }
                 }
             }
+
+            // Free memory for this picking result
+            Ammo.destroy(picking_result);
         }
 
         canvas.addEventListener("mousedown", on_mouse_event);
@@ -426,6 +429,9 @@
 
         // Remove the page loader overlay
         _page_loader_overlay.hidden = true;
+
+        // Call it once to ensure good size after everything is loaded
+        onWindowResize();
 
         // ANIMATION
         let prev_time = 0;
