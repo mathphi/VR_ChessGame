@@ -339,6 +339,16 @@
                         picked_body.activate(false);
                     }
                 }
+                else if (event.buttons & MouseButtons.MIDDLE && event.type === "mousedown") {
+                    const picked_point = picking_result.get_m_hitPointWorld();
+                    camera.anim_camera_orientation(
+                        null, null, null,
+                        glMatrix.vec3.fromValues(
+                            picked_point.x(), picked_point.y(), picked_point.z()
+                        ),
+                        500.0
+                    );
+                }
                 else {
                     // If the picked object comes from the chessboard
                     if (picked_body.orig_object.from_chess !== undefined) {
