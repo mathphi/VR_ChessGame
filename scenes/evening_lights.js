@@ -1,4 +1,23 @@
 async function make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set){
+    const keys_cam_settings = {
+        0: {zenith: 60.0, azimuth: 240.0, radius: 55.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 0
+        1: {zenith: 45.0, azimuth: 135.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 1
+        2: {zenith: 45.0, azimuth: 180.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 2
+        3: {zenith: 45.0, azimuth: 225.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 3
+        4: {zenith: 45.0, azimuth: 90.0,  radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 4
+        5: {zenith: 0.0,  azimuth: 0.0,   radius: 16.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 5
+        6: {zenith: 45.0, azimuth: 270.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 6
+        7: {zenith: 45.0, azimuth: 45.0,  radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 7
+        8: {zenith: 45.0, azimuth: 0.0,   radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 8
+        9: {zenith: 45.0, azimuth: 315.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 9
+    [' ']: {zenith: 0.0,  azimuth: 0.0,   radius: 16.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)}
+    };
+
+    // Setup scene-specific camera shortcuts
+    for (const [key, orient] of Object.entries(keys_cam_settings)) {
+        camera.set_key_camera_view(key, orient.zenith, orient.azimuth, orient.radius, orient.center);
+    }
+
     // CUBEMAP
     const cubemap = await make_cubemap(gl, 'objects/misc/cube.obj', 'textures/cubemaps/Nalovardo', 1024);
 
