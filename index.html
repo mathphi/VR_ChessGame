@@ -460,21 +460,11 @@
             // Animate the scene elements
             scene.animate(time, delta_time);
 
-            /************************
-             **   Cubemap shader   **
-             ************************/
-
-            // Draw the cubemap first (using shader_cubemap)
-            shader_cubemap.use();
-            shader_cubemap.set_projection_uniform(projection);  
-            shader_cubemap.set_view_uniform(camera.get_view_matrix());
-            scene.draw_cubemap(shader_cubemap);
-
             /***********************
              **   Common shader   **
              ***********************/
 
-            // We use the "normal shader"
+            // We use the "common shader"
             shader_common.use();
             shader_common.set_projection_uniform(projection);
             shader_common.set_view_uniform(camera.get_view_matrix());
@@ -491,11 +481,23 @@
              **   Move squares shader   **
              *****************************/
 
-            // Draw the cubemap first (using shader_cubemap)
+            // Draw the move squares (using its specific shader)
             move_squares_shader.use();
             move_squares_shader.set_projection_uniform(projection);
             move_squares_shader.set_view_uniform(camera.get_view_matrix());
             chessboard.draw_move_squares(move_squares_shader);
+
+            /************************
+             **   Cubemap shader   **
+             ************************/
+
+            // Draw the cubemap (using shader_cubemap)
+            // For performance concerns, we draw the cubemap after the objects, such that its fragment shader
+            // is not activated for pixels behind the objects.
+            shader_cubemap.use();
+            shader_cubemap.set_projection_uniform(projection);
+            shader_cubemap.set_view_uniform(camera.get_view_matrix());
+            scene.draw_cubemap(shader_cubemap);
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
