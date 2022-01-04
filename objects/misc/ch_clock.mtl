@@ -21,7 +21,7 @@ newmtl Wood
 Color 0.0000000 0.000000 0.000000
 Spec_e 32.0
 Spec_s 0.5
-Refl_s 0.1
+Refl_s 0.01
 Refr_s 0.0
 Refr_i 1.0
 
