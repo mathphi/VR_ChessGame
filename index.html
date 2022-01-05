@@ -441,8 +441,37 @@
                     }
                     break;
                 case 's':
-                    if (_phys_forced) {
-                        scene.table.rotate(z_axis, 5.0 * Math.PI / 180.0);
+                    // CTRL + S -> save game to cookies
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        setCookie('last-savegame-fen', chessboard.get_board_str(), _cookies_lifetime);
+                        show_notify("Game state saved", 2000.0);
+                    }
+                    else {
+                        if (_phys_forced) {
+                            scene.table.rotate(z_axis, 5.0 * Math.PI / 180.0);
+                        }
+                    }
+                    break;
+                case 'r':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        const saved_game = getCookie('last-savegame-fen');
+
+                        if (saved_game !== '') {
+                            if (confirm("Are you sure you want to restore the last saved game?")) {
+                                const validated = chessboard.load_board_str(saved_game);
+
+                                show_notify(
+                                    validated
+                                    ? "Saved game successfully restored"
+                                    : "Unable to restore the saved game", 2000.0
+                                );
+                            }
+                        }
+                        else {
+                            show_notify("No saved game to restore", 2000.0);
+                        }
                     }
                     break;
                 case 'q':
