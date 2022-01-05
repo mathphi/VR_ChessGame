@@ -125,16 +125,8 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         ch_clk_sec_hand_r_obj.anim_to_rotation(zero_rotation, anim_duration);
         plant_obj.anim_to_rotation(zero_rotation, anim_duration);
 
-        // Reset physics mass
-        table_obj.set_physics_mass(0.0);
-        glass_obj.set_physics_mass(1.0);
-        ch_clk_obj.set_physics_mass(0.0);
-        ch_clk_hand_l_obj.set_physics_mass(0.0);
-        ch_clk_hand_r_obj.set_physics_mass(0.0);
-        ch_clk_sec_hand_l_obj.set_physics_mass(0.0);
-        ch_clk_sec_hand_r_obj.set_physics_mass(0.0);
-        lamp_table_obj.set_physics_mass(0.0);
-        plant_obj.set_physics_mass(0.0);
+        // Reset physics
+        force_physics(false);
     }
 
     let _current_turn = chessboard.get_turn();
@@ -213,6 +205,17 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     }
 
     function force_physics(force) {
+        // Reset all forces/velocities
+        if (force === false) {
+            lamp_table_obj.reset_physics_motion();
+            ch_clk_obj.reset_physics_motion();
+            ch_clk_hand_l_obj.reset_physics_motion();
+            ch_clk_hand_r_obj.reset_physics_motion();
+            ch_clk_sec_hand_l_obj.reset_physics_motion();
+            ch_clk_sec_hand_r_obj.reset_physics_motion();
+            plant_obj.reset_physics_motion();
+        }
+
         lamp_table_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
