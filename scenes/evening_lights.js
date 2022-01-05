@@ -36,12 +36,12 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
     // Loading objects from files
     const glass_mesh = await load_obj('objects/misc/glass.obj', false);
     const table_mesh = await load_obj('objects/misc/table.obj', true);
-    const lamp_mesh = await load_obj('objects/misc/lamp.obj', false, glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
+    const lamp_mesh = await load_obj('objects/misc/lamp.obj', false, 20.0);
     const lamp_table_mesh = await load_obj('objects/misc/lamp_table.obj', true);
     const ch_clk_mesh = await load_obj('objects/misc/ch_clock.obj', true);
-    const ch_clk_hand_mesh = await load_obj('objects/misc/ch_clock_hand.obj', false, glMatrix.vec3.fromValues(1.5, 1.5, 1.5));
-    const ch_clk_sec_hand_mesh = await load_obj('objects/misc/clock_sec.obj', false, glMatrix.vec3.fromValues(0.7, 0.7, 0.7));
-    const plant_mesh = await load_obj('objects/misc/plant.obj', true, glMatrix.vec3.fromValues(3.0, 3.0, 3.0));
+    const ch_clk_hand_mesh = await load_obj('objects/misc/ch_clock_hand.obj', false, 1.5);
+    const ch_clk_sec_hand_mesh = await load_obj('objects/misc/clock_sec.obj', false, 0.7);
+    const plant_mesh = await load_obj('objects/misc/plant.obj', true, 3.0);
 
     // Make the buffer and the functions to draw the objects
     const glass_obj = make_object(gl, glass_mesh);

@@ -171,6 +171,11 @@
         canvas.height = c_height;
         const gl = canvas.getContext('webgl');
         gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.CULL_FACE);    // Enable face culling to save computation time
+
+        // FAR AND NEAR PLANE FOR DEPTH TESTING
+        const near_plane = 0.01;
+        const far_plane  = 200.0;
 
         // PHYSICS ENGINE
         const physics_engine = setupPhysics();
@@ -232,7 +237,8 @@
         );
 
         // Get camera projection
-        let projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+        let projection = camera.set_projection(45.0, c_width / c_height, near_plane, far_plane);
+
         // Camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
@@ -491,6 +497,9 @@
              **   Cubemap shader   **
              ************************/
 
+            // Disable face culling while drawing the cubemap
+            gl.disable(gl.CULL_FACE);
+
             // Draw the cubemap (using shader_cubemap)
             // For performance concerns, we draw the cubemap after the objects, such that its fragment shader
             // is not activated for pixels behind the objects.
@@ -498,6 +507,8 @@
             shader_cubemap.set_projection_uniform(projection);
             shader_cubemap.set_view_uniform(camera.get_view_matrix());
             scene.draw_cubemap(shader_cubemap);
+
+            gl.enable(gl.CULL_FACE);
 
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
@@ -525,7 +536,7 @@
 
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-            projection = camera.set_projection(45.0, c_width / c_height, 0.01, 100.0);
+            projection = camera.set_projection(45.0, c_width / c_height, near_plane, far_plane);
         }
         window.onresize = onWindowResize;
 

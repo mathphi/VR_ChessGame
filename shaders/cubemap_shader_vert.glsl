@@ -23,6 +23,6 @@ void main() {
     gl_Position = (P*mat4(Vrotation)*frag_coord).xyww;
 
     // We set the texture coordinates accordingly to the position.
-    v_texcoord = frag_coord.xyz;
+    v_texcoord = a_position;
     v_normal = a_normal;
 }
