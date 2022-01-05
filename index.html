@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
     <title>3D ChessGame - VR Project</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -47,6 +49,7 @@
 <script type="text/javascript" src="lib/cubemap.js"></script>
 <script type="text/javascript" src="lib/physics.js"></script>
 <script type="text/javascript" src="lib/chess_ai.js"></script>
+<script type="text/javascript" src="lib/cookies.js"></script>
 <script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
 <script type="text/javascript" src="scenes/scene.js"></script>
@@ -58,6 +61,9 @@
     window.onbeforeunload = function() {
         return "Are you sure you want to quit the game?";
     }
+
+    // Cookies life
+    const _cookies_lifetime = 365;  // Days
 
     // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
@@ -153,6 +159,20 @@
         show_notify("Mouse buttons inverted", 2000.0);
     }
 
+    function init_ui() {
+        // Initialize UI according to cookies
+
+        // Auto camera rotation settings
+        const c_cam_auto_rotate = getCookie('cam_auto_rotate');
+        _auto_cam_input.checked = (c_cam_auto_rotate !== '0');
+
+        // AI settings
+        const c_ai_enabled = getCookie('ai_enabled');
+        const c_ai_level = getCookie('ai_level');
+        _ai_enabled_input.checked = (c_ai_enabled === '1');
+        _ai_level_input.value = (c_ai_level !== '' ? c_ai_level : '1');
+    }
+
     function get_mouse_pos(canvas, evt) {
         const rect = canvas.getBoundingClientRect();
         return glMatrix.vec2.fromValues(
@@ -163,6 +183,9 @@
     }
 
     async function main() {
+        // Initialize UI
+        init_ui();
+
         // Initialize GL and canvas
         const canvas = document.getElementById('webgl_canvas');
         let c_width = canvas.clientWidth;
@@ -205,6 +228,10 @@
         _new_game_button.addEventListener('click', restart_new_game);
 
         function on_ai_config_changed() {
+            // Store configuration in cookies
+            setCookie('ai_enabled', _ai_enabled_input.checked ? 1 : 0, _cookies_lifetime);
+            setCookie('ai_level', _ai_level_input.value, _cookies_lifetime);
+
             // Disable select input if AI disabled
             _ai_level_input.disabled = !_ai_enabled_input.checked;
 
@@ -242,6 +269,13 @@
 
         // Camera position
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
+
+
+        function on_cam_config_changed() {
+            setCookie('cam_auto_rotate', _auto_cam_input.checked ? 1 : 0, _cookies_lifetime);
+        }
+
+        _auto_cam_input.addEventListener('change', on_cam_config_changed);
 
         // SCENE
         const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
