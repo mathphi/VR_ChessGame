@@ -44,10 +44,10 @@
         const cubemap = await make_cubemap(gl, 'objects/cube.obj', 'textures/cubemaps/NiagaraFalls3', 2048);
 
         // loading the object from a file
-        const cube = await load_obj('objects/cube.obj');
-        const plane = await load_obj('objects/plane.obj');
-        const torus = await load_obj('objects/torus.obj');
-        const chessboard = await load_obj('objects/Chessboard.obj');
+        const cube = await load_mesh('objects/cube.obj');
+        const plane = await load_mesh('objects/plane.obj');
+        const torus = await load_mesh('objects/torus.obj');
+        const chessboard = await load_mesh('objects/Chessboard.obj');
 
         // Load bump map
         const bump_map_cube = await load_texture(gl, 'textures/BumpMapCube.png');

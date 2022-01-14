@@ -50,6 +50,7 @@
 <script type="text/javascript" src="lib/physics.js"></script>
 <script type="text/javascript" src="lib/chess_ai.js"></script>
 <script type="text/javascript" src="lib/cookies.js"></script>
+<script type="text/javascript" src="lib/particles.js"></script>
 <script type="text/javascript" src="3rdparty/chess.js/chess.js"></script>
 <script type="text/javascript" src="3rdparty/ammo.js/builds/ammo.js"></script>
 <script type="text/javascript" src="scenes/scene.js"></script>
@@ -192,9 +193,12 @@
         let c_height = canvas.clientHeight;
         canvas.width = c_width;
         canvas.height = c_height;
-        const gl = canvas.getContext('webgl');
+        const gl = canvas.getContext('webgl2');
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.CULL_FACE);    // Enable face culling to save computation time
+
+        // Settings for the blending function (used when blending is enabled, i.e. for particles)
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
         // FAR AND NEAR PLANE FOR DEPTH TESTING
         const near_plane = 0.01;
@@ -215,11 +219,37 @@
         const shader_cubemap = await make_shader(gl, 'cubemap_shader', 'shaders');
         // Compile a shader specific to move squares
         const move_squares_shader = await make_shader(gl, 'move_squares_shader', 'shaders');
-        
+        // Compile a shader specific to particles
+        const particles_shader = await make_shader(gl, 'particles_shader', 'shaders');
+
+        // CAMERA
+        // Create camera
+        const camera = make_camera(
+            canvas,
+            18.0, 0.0, 0.0,
+            glMatrix.vec3.fromValues(0.0, 1.0, 0.0),
+            glMatrix.vec3.fromValues(0.0, 0.0, 0.0)
+        );
+
+        // Get camera projection
+        let projection = camera.set_projection(45.0, c_width / c_height, near_plane, far_plane);
+
+        // Camera position
+        const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
+
+        function on_cam_config_changed() {
+            setCookie('cam_auto_rotate', _auto_cam_input.checked ? 1 : 0, _cookies_lifetime);
+        }
+
+        _auto_cam_input.addEventListener('change', on_cam_config_changed);
+
+        // PARTICLES ENGINE
+        const particle_engine = make_particles_engine(gl, camera);
+
         // CHESSBOARD
         // Make chessboard
         const chessboard = await make_chessboard(
-            gl,  physics_engine, light_set
+            gl, camera, physics_engine, light_set, particle_engine
         );
 
         // Event when AI checkbox is changed
@@ -255,28 +285,6 @@
             }
         }
 
-        // CAMERA
-        // Create camera
-        const camera = make_camera(
-            canvas,
-            18.0, 0.0, 0.0,
-            glMatrix.vec3.fromValues(0.0, 1.0, 0.0),
-            glMatrix.vec3.fromValues(0.0, 0.0, 0.0)
-        );
-
-        // Get camera projection
-        let projection = camera.set_projection(45.0, c_width / c_height, near_plane, far_plane);
-
-        // Camera position
-        const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
-
-
-        function on_cam_config_changed() {
-            setCookie('cam_auto_rotate', _auto_cam_input.checked ? 1 : 0, _cookies_lifetime);
-        }
-
-        _auto_cam_input.addEventListener('change', on_cam_config_changed);
-
         // SCENE
         const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
         scene.set_current_turn(chessboard.get_turn());
@@ -300,6 +308,7 @@
             }
         }
 
+        // GAME EVENTS
         function on_game_event(event, player) {
             console.log("Game event received (flags: " + event + ", player: '" + player + "')");
             if (event & ChessSituation.Checkmate) {
@@ -411,6 +420,7 @@
         canvas.addEventListener("mousedown", on_mouse_event);
         canvas.addEventListener("mousemove", on_mouse_event);
 
+        // KEYBOARD EVENTS
         let _phys_forced = false;
         document.addEventListener("keydown", function (event) {
             const x_axis = glMatrix.vec3.fromValues(1.0, 0.0, 0.0);
@@ -502,7 +512,6 @@
                     break;
             }
         });
-        
 
         // Elapsed time label element
         const elapsedElem = document.querySelector("#elapsed");
@@ -514,7 +523,7 @@
         onWindowResize();
 
         // ANIMATION
-        let prev_time = 0;
+        let prev_time = performance.now();
         let delta_time = 0;
 
         function animate(time) {
@@ -529,6 +538,9 @@
 
             // Animate the scene elements
             scene.animate(time, delta_time);
+
+            // Update the particles
+            particle_engine.update(delta_time / 1000.0);
 
             /***********************
              **   Common shader   **
@@ -574,6 +586,22 @@
 
             gl.enable(gl.CULL_FACE);
 
+            /**************************
+             **   Particles shader   **
+             **************************/
+
+            // Enable transparency
+            gl.enable(gl.BLEND);
+
+            particles_shader.use();
+            particles_shader.set_projection_uniform(projection);
+            particles_shader.set_view_uniform(camera.get_view_matrix());
+            particle_engine.draw(particles_shader);
+
+            // Disable transparency
+            gl.disable(gl.BLEND);
+
+
             fps(time);
             window.requestAnimationFrame(animate); // While(True) loop!
         }
@@ -604,7 +632,7 @@
         }
         window.onresize = onWindowResize;
 
-        animate(0);
+        animate(performance.now());
     }
 
     Ammo().then(main);
