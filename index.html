@@ -75,7 +75,12 @@
                 <kbd>NumKey</kbd> : Preset camera views
             </p>
         </div>
-    </div>    
+    </div> 
+    <div id="sound">
+        <svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+        </svg>
+    </div>   
 </div>
 
 <div id="canvas_overlay" hidden>
@@ -113,6 +118,9 @@
     // Cookies life
     const _cookies_lifetime = 365;  // Days
 
+    // Sound On
+    let sound_on = true;
+
     // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
 
@@ -121,6 +129,7 @@
     const _ai_enabled_input = document.querySelector("#ai-enabled");
     const _ai_level_input   = document.querySelector("#ai-level");
     const _new_game_button  = document.querySelector("#new-game");
+    const _volume_button    = document.querySelector("#sound");
 
     // Notification functions
     let _notify_timeout_id = null;
@@ -228,6 +237,9 @@
         const c_ai_level = getCookie('ai_level');
         _ai_enabled_input.checked = (c_ai_enabled === '1');
         _ai_level_input.value = (c_ai_level !== '' ? c_ai_level : '1');
+
+        // Sound settings
+        sound_on = getCookie('sound_on') === "true" ? false : true;
     }
 
     function get_mouse_pos(canvas, evt) {
@@ -312,6 +324,9 @@
         _ai_enabled_input.addEventListener('change', on_ai_config_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
+        _volume_button.addEventListener("click", activate_sound);
+
+        activate_sound();
 
         function on_ai_config_changed() {
             // Store configuration in cookies
@@ -338,6 +353,27 @@
                 chessboard.force_phycics(false);
                 setTimeout(chessboard.reset_game, 600.0);
                 hide_notify();
+            }
+        }
+
+        
+        function activate_sound() {
+            sound_on = !sound_on;
+            setCookie('sound_on', sound_on, _cookies_lifetime);
+            chessboard.set_sound_on(sound_on);
+            if(sound_on){
+                _volume_button.innerHTML = 
+                `<svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">`+
+                `<path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />`+
+                `</svg>`
+                ;
+            }
+            else{
+                _volume_button.innerHTML = 
+                `<svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">`+
+                `<path fill="currentColor" d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z" />`+
+                `</svg>`
+                ;
             }
         }
 
@@ -397,6 +433,7 @@
                         show_game_won(player);
                     }, 2500.0);
                     scene.animateGameWon();
+                    chessboard.playEndgameSound("win");
                 }
             }
             else if (event & ChessSituation.Draw) {
