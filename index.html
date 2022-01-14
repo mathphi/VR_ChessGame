@@ -599,8 +599,7 @@
             prev_time = time;
 
             // Update elapsed label
-            elapsedElem.textContent = "Elapsed: " + (time / 1000.0).toFixed(1) + 's';
-
+            elapsedElem.textContent = "Elapsed: " + timeToHuman(time);
             // Update the physics
             physics_engine.update(delta_time / 1000.0); // Delta time in seconds
 
@@ -682,8 +681,18 @@
             const deltaTime = now - prev;
             prev = now;
             const fps = 1 / deltaTime;
-            fpsElem.textContent = 'FPS: ' + fps.toFixed(1);
+            fpsElem.textContent = 'FPS: ' + fps.toFixed();
             return fps;
+        }
+
+        function timeToHuman(time) {
+            t_sec = time / 1000.0;
+            const sec = Math.floor(t_sec % 60);
+            t_sec /= 60.0;
+            const min = Math.floor(t_sec % 60);
+            const hour = Math.floor(t_sec / 60.0);
+
+            return hour.toFixed(0) + 'h' + min.toFixed(0) + 'm' + sec.toFixed(0) + 's';
         }
 
         // CANVAS & CAMERA RESIZE WITH WEBPAGE
