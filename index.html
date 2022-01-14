@@ -178,6 +178,14 @@
             -1
         );
     }
+    function show_game_lost() {
+        show_notify(
+            `<span style="font-size: 36pt;">` +
+            `You lost!` +
+            `</span>`,
+            -1
+        );
+    }
     function show_game_draw() {
         show_notify(
             `<span style="font-size: 36pt;">Draw!</span>`,
@@ -334,7 +342,7 @@
         }
 
         // SCENE
-        const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set);
+        const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set, particle_engine);
         scene.set_current_turn(chessboard.get_turn());
 
         // Set initial camera position to special position 0 (defined by the scene)
@@ -376,14 +384,26 @@
             }
 
             if (event & ChessSituation.Checkmate) {
-                setTimeout(function () {
+                if (chessboard.is_ai_enabled() && player === 'b') {
+                    // The (only) player lost
+                    setTimeout(function () {
+                        show_game_lost();
+                    }, 2500.0);
+                    scene.animateGameLost();
+                }
+                else {
+                    // If a player won
+                    setTimeout(function () {
                         show_game_won(player);
-                    },
-                    2500.0
-                );
+                    }, 2500.0);
+                    scene.animateGameWon();
+                }
             }
             else if (event & ChessSituation.Draw) {
-                setTimeout(show_game_draw, 2500.0);
+                setTimeout(function () {
+                    show_game_draw();
+                }, 2500.0);
+                scene.animateGameDraw();
             }
 
             scene.on_game_event(event);

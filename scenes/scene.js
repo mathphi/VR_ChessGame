@@ -1,17 +1,17 @@
-async function make_scene(name, gl, camera, chessboard, physics_engine, light_set) {
+async function make_scene(name, gl, camera, chessboard, physics_engine, light_set, particle_engine) {
 
     switch(name){
         case 'evening_lights':
-            return make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set);
+            return make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set, particle_engine);
         case 'niagara_falls':
-            return make_niagara_falls_scene(gl, camera, chessboard, physics_engine, light_set);
+            return make_niagara_falls_scene(gl, camera, chessboard, physics_engine, light_set, particle_engine);
         default:
-            return make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set);
+            return make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set, particle_engine);
     }
 
 }
 
-async function make_niagara_falls_scene(gl, camer, chessboard, physics_engine, light_set){
+async function make_niagara_falls_scene(gl, camer, chessboard, physics_engine, light_set, particle_engine){
 
 
     return{

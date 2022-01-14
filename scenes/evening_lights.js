@@ -1,4 +1,4 @@
-async function make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set){
+async function make_evening_lights_scene(gl, camera, chessboard, physics_engine, light_set, particle_engine) {
     const keys_cam_settings = {
         0: {zenith: 60.0, azimuth: 240.0, radius: 55.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 0
         1: {zenith: 45.0, azimuth: 135.0, radius: 33.0, center: glMatrix.vec3.fromValues(0.0, -4.0, 0.0)},  // 1
@@ -225,6 +225,103 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         plant_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
     }
 
+    function animateGameLost() {
+        camera.set_special_orientation(0, 1000.0);
+
+        // Parametrize a dust effect using a particle jet
+        const fire_jet = make_particle_jet(
+            gl, camera,
+            ParticleType.Star,
+            chessboard.get_position(), 6.5, glMatrix.vec3.fromValues(0.0, 1.0, 0.0),
+            5.0,
+            8000, 0.2,
+            glMatrix.vec3.fromValues(0.0, 0.0, 0.0), 0.2,
+            1.5, glMatrix.vec3.fromValues(0.0, -0.2, 0.0),
+            0.75
+        );
+
+        // Register the particle system
+        particle_engine.register_particle_system(fire_jet);
+    }
+
+    function animateGameWon() {
+        camera.set_special_orientation(0, 1000.0);
+
+        // Bengale fire at each edge of the chessboard!!!
+        const fire1 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(-2, -2)),
+            color: glMatrix.vec3.fromValues(1.0, 0.2, 0.2)
+        };
+        const fire2 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(-2, 9)),
+            color: glMatrix.vec3.fromValues(0.2, 0.2, 1.0)
+        };
+        const fire3 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(9, 9)),
+            color: glMatrix.vec3.fromValues(1.0, 0.2, 0.2)
+        };
+        const fire4 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(9, -2)),
+            color: glMatrix.vec3.fromValues(0.2, 0.2, 1.0)
+        };
+
+        for (const fire of [fire1, fire2, fire3, fire4]) {
+            // Parametrize a dust effect using a particle jet
+            const fire_jet = make_particle_jet(
+                gl, camera,
+                ParticleType.Star,
+                fire.pos, 0.1, glMatrix.vec3.fromValues(0.0, 1.0, 0.0),
+                5.0,
+                1000, 0.1,
+                fire.color, 0.5,
+                10.0, glMatrix.vec3.fromValues(0.0, -0.2, 0.0),
+                1.5
+            );
+
+            // Register the particle system
+            particle_engine.register_particle_system(fire_jet);
+        }
+    }
+
+    function animateGameDraw() {
+        camera.set_special_orientation(0, 1000.0);
+
+        // Bengale fire at each edge of the chessboard!!!
+        const fire1 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(-2, -2)),
+            color: glMatrix.vec3.fromValues(1.0, 1.0, 1.0)
+        };
+        const fire2 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(-2, 9)),
+            color: glMatrix.vec3.fromValues(1.0, 1.0, 1.0)
+        };
+        const fire3 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(9, 9)),
+            color: glMatrix.vec3.fromValues(1.0, 1.0, 1.0)
+        };
+        const fire4 = {
+            pos: chessboard.gameTo3DPosition(glMatrix.vec2.fromValues(9, -2)),
+            color: glMatrix.vec3.fromValues(1.0, 1.0, 1.0)
+        };
+
+        for (const fire of [fire1, fire2, fire3, fire4]) {
+            // Parametrize a dust effect using a particle jet
+            const fire_jet = make_particle_jet(
+                gl, camera,
+                ParticleType.Star,
+                fire.pos, 0.1, glMatrix.vec3.fromValues(0.0, 1.0, 0.0),
+                5.0,
+                1000, 0.1,
+                fire.color, 0.5,
+                10.0, glMatrix.vec3.fromValues(0.0, -0.2, 0.0),
+                1.5
+            );
+
+            // Register the particle system
+            particle_engine.register_particle_system(fire_jet);
+        }
+    }
+
 
     return{
         animate: animate,
@@ -234,7 +331,10 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
         table: table_obj,
         force_physics: force_physics,
         reset: reset,
-        on_game_event: on_game_event
+        on_game_event: on_game_event,
+        animateGameLost: animateGameLost,
+        animateGameWon: animateGameWon,
+        animateGameDraw: animateGameDraw,
     }
 }
 
