@@ -3,6 +3,21 @@ body {
     padding: 0;
     user-select: none;
 }
+
+kbd {
+    background-color: #eee;
+    border-radius: 3px;
+    border: 1px solid #b4b4b4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
+    color: #333;
+    display: inline-block;
+    font-size: .85em;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
 #webgl_canvas {
     position: absolute;
     width: 100%;
@@ -30,6 +45,8 @@ body {
     width: 16%;
     text-align: center;
 }
+
+
 input[type="checkbox"] {
     vertical-align: middle;
 }
@@ -43,14 +60,14 @@ input[type="checkbox"] {
     width: fit-content;
     height: fit-content;
     min-width: 20%;
-    #min-height: 15%;
+    min-height: 15%;
     max-width: 60%;
     max-height: 50%;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.75);
     border-radius: 10px;
     text-align: center;
-    #vertical-align: middle;
+    vertical-align: middle;
 }
 #notify_text {
     font-weight: bold;
@@ -66,6 +83,36 @@ input[type="checkbox"] {
     bottom: 0;
     background-color: white;
 }
+
+div#info {
+    text-align: right;
+    font-family: Arial, sans-serif;
+}
+
+div#info_overlay {
+    position: absolute;
+    margin: auto;
+    right: 10px;
+    top: 70px;
+    width: fit-content;
+    height: fit-content;
+    min-width: 10%;
+    max-width: 40%;
+    padding: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    text-align: left;
+    vertical-align: middle;
+    display: none;
+}
+
+div#info:hover div#info_overlay {
+    display: block;
+}
+
 .loader {
     position: absolute;
     margin: auto;
