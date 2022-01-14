@@ -42,7 +42,7 @@ kbd {
     min-width: 120px;
     max-width: 200px;
     margin: 0;
-    width: 16%;
+    width: 15%;
     text-align: center;
 }
 
@@ -87,13 +87,18 @@ input[type="checkbox"] {
 div#info {
     text-align: right;
     font-family: Arial, sans-serif;
+    float: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
 }
 
 div#info_overlay {
     position: absolute;
     margin: auto;
     right: 10px;
-    top: 70px;
+    top: 50px;
     width: fit-content;
     height: fit-content;
     min-width: 10%;
