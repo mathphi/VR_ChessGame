@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // Sound On
     let _sound_on = false;
 
+    // Fullscreen
+    let _fullscreen_on = false;
+
     // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
 
@@ -35,12 +38,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const _ai_thinking_indicator = document.querySelector("#ai-thinking-indicator");
 
     // Top-bar elements
-    const _selected_scene_input = document.querySelector("#selected-scene");
     const _auto_cam_input = document.querySelector("#auto-cam");
     const _ai_enabled_input = document.querySelector("#ai-enabled");
     const _ai_level_input = document.querySelector("#ai-level");
     const _new_game_button = document.querySelector("#new-game");
     const _volume_button = document.querySelector("#sound");
+    const _fullscreen_button = document.querySelector("#fullscreen");
 
     // Notification functions
     let _notify_timeout_id = null;
@@ -238,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function() {
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
         _volume_button.addEventListener("click", toggle_sound);
-
+        _fullscreen_button.addEventListener("click", toggle_fullscreen);
 
         function on_ai_config_changed() {
             // Store configuration in cookies
@@ -253,6 +256,30 @@ document.addEventListener("DOMContentLoaded", function() {
                 _ai_enabled_input.checked,
                 parseInt(_ai_level_input.value)
             );
+        }
+
+        function toggle_fullscreen(){
+            _fullscreen_on = !_fullscreen_on;
+            _fullscreen_button.setAttribute('fsc', _fullscreen_on ? 'on' : 'off');
+            if(_fullscreen_on){
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+                    document.documentElement.msRequestFullscreen();
+                }
+            }
+            else{
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+           
         }
 
         // Initialize AI according to GUI

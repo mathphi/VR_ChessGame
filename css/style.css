@@ -6,6 +6,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
+input {
+    cursor: pointer;
+}
+
 kbd {
     background-color: #eee;
     border-radius: 3px;
@@ -84,6 +88,7 @@ input[type="checkbox"] {
 }
 
 div#sound {
+    cursor: pointer;
     text-align: right;
     margin-right: 10px;
     width: 30px;
@@ -105,6 +110,31 @@ div#sound:hover svg {
 #sound[snd="off"] #snd-off {
     display: inline-block;
 }
+
+div#fullscreen {
+    cursor: pointer;
+    text-align: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+}
+div#fullscreen:hover svg{
+    opacity: 0.8;
+}
+#fsc-on {
+    display: none;
+}
+#fsc-off {
+    display: none;
+}
+#fullscreen[fsc="on"] #fsc-on {
+    display: inline-block;
+}
+#fullscreen[fsc="off"] #fsc-off {
+    display: inline-block;
+}
+
 
 .right-box {
     float: right;
@@ -154,6 +184,7 @@ div#info:hover div#info_overlay {
 }
 
 div#scene {
+    cursor: pointer;
     text-align: right;
     margin-right: 10px;
     width: 30px;
