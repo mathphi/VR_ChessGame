@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", function() {
         return "Are you sure you want to quit the game?";
     }
 
+    // Scene changed
+    let _scene_changed = false;
+
     // Cookies life
     const _cookies_lifetime = 365;  // Days
 
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const _ai_thinking_indicator = document.querySelector("#ai-thinking-indicator");
 
     // Top-bar elements
+    const _selected_scene_input = document.querySelector("#selected-scene");
     const _auto_cam_input = document.querySelector("#auto-cam");
     const _ai_enabled_input = document.querySelector("#ai-enabled");
     const _ai_level_input = document.querySelector("#ai-level");
@@ -130,6 +134,13 @@ document.addEventListener("DOMContentLoaded", function() {
     function init_ui() {
         // Initialize UI according to cookies
 
+        // Selected scene settings
+        const c_selected_scene = getCookie('selected_scene');
+        _selected_scene_input.value = (c_selected_scene !==  false ? c_selected_scene : 'evening_lights');
+        const c_scene_changed = getCookie('scene_changed');
+        _scene_changed = c_scene_changed;
+        eraseCookie('scene_changed');
+
         // Auto camera rotation settings
         const c_cam_auto_rotate = getCookie('cam_auto_rotate');
         _auto_cam_input.checked = (c_cam_auto_rotate !== '0');
@@ -138,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const c_ai_enabled = getCookie('ai_enabled');
         const c_ai_level = getCookie('ai_level');
         _ai_enabled_input.checked = (c_ai_enabled === '1');
-        _ai_level_input.value = (c_ai_level !== '' ? c_ai_level : '1');
+        _ai_level_input.value = (c_ai_level !== false ? c_ai_level : '1');
 
         // Sound settings
         _sound_on = getCookie('sound_on') === "true";
@@ -222,13 +233,20 @@ document.addEventListener("DOMContentLoaded", function() {
         const chessboard = await make_chessboard(
             gl, camera, physics_engine, light_set, particle_engine
         );
-        chessboard.set_sound_on(_sound_on);
 
         // Event when AI checkbox is changed
+        _selected_scene_input.addEventListener('change', on_selected_scene_input_changed);
         _ai_enabled_input.addEventListener('change', on_ai_config_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
         _volume_button.addEventListener("click", toggle_sound);
+
+        function on_selected_scene_input_changed() {
+            // Store configuration in cookies
+            setCookie('selected_scene', _selected_scene_input.value, _cookies_lifetime);
+            setCookie('scene_changed', chessboard.get_board_pgn(), _cookies_lifetime);
+            location.reload();
+        }
 
         function on_ai_config_changed() {
             // Store configuration in cookies
@@ -266,7 +284,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // SCENE
-        const scene = await make_scene('evening_lights', gl, camera, chessboard, physics_engine, light_set, particle_engine);
+        const scene = await make_scene(_selected_scene_input.value, gl, camera, chessboard, physics_engine, light_set, particle_engine);
         scene.set_current_turn(chessboard.get_turn());
 
         // Set initial camera position to special position 0 (defined by the scene)
@@ -351,6 +369,25 @@ document.addEventListener("DOMContentLoaded", function() {
         chessboard.register_on_turn_change_callback(on_turn_change_event);
         chessboard.register_on_game_event_callback(on_game_event);
         chessboard.register_on_ai_thinking_callback(on_ai_thinking_event);
+
+        // Chessboard options
+        chessboard.set_sound_on(_sound_on);
+
+        if (_scene_changed !== false) {
+            const prev_game = chessboard.get_board_pgn();
+            const validated = chessboard.load_board_pgn(_scene_changed);
+
+            // Restore previous game if it was invalid
+            if (!validated) {
+                chessboard.load_board_pgn(prev_game);
+            }
+
+            show_notify(
+                validated
+                    ? _selected_scene_input.options[_selected_scene_input.selectedIndex].text
+                    : "Unable to restore the saved game", 2000.0
+            );
+        }
 
         // MOUSE EVENTS
         function on_mouse_event(event) {
@@ -676,7 +713,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (hour > 0) {
                 str += hour.toFixed(0) + 'h&nbsp;';
             }
-            if (min > 0) {
+            if (min > 0 || hour > 0) {
                 str += min.toFixed(0) + 'm&nbsp;';
             }
 
