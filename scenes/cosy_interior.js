@@ -26,7 +26,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const ch_clk_tex = await load_texture(gl, 'textures/ch_clock_tex.png', true);
     const lamp_table_tex = await load_texture(gl, 'textures/lamp_table_tex.jpg', true);
     const plant_tex = await load_texture(gl, 'textures/plant_tex.jpg', true);
-    const walls_tex = await load_texture(gl, 'textures/brick_walls_tex.png', false);
+    const walls_tex = await load_texture(gl, 'textures/brick_walls_tex.jpg', false);
     const ground_tex = await load_texture(gl, 'textures/floor_tex.jpg', true);
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.jpg', true);
