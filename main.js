@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.requestAnimationFrame(fade_out);
             } else {
                 _notify_overlay.hidden = true;
+                _notify_text.innerHTML = '';
             }
         }
 
@@ -309,22 +310,28 @@ document.addEventListener("DOMContentLoaded", function() {
                     setTimeout(function () {
                         show_game_lost();
                     }, 2500.0);
-                    scene.animateGameLost();
-                    chessboard.playEndgameSound("lose");
+                    setTimeout(function () {
+                        scene.animateGameLost();
+                        chessboard.playEndgameSound("lose");
+                    }, 1000.0);
                 } else {
                     // If a player won
                     setTimeout(function () {
                         show_game_won(player);
                     }, 2500.0);
-                    scene.animateGameWon();
-                    chessboard.playEndgameSound("win");
+                    setTimeout(function () {
+                        scene.animateGameWon();
+                        chessboard.playEndgameSound("win");
+                    }, 1000.0);
                 }
             } else if (event & ChessSituation.Draw) {
                 setTimeout(function () {
                     show_game_draw();
                 }, 2500.0);
-                scene.animateGameDraw();
-                chessboard.playEndgameSound("draw");
+                setTimeout(function () {
+                    scene.animateGameDraw();
+                    chessboard.playEndgameSound("draw");
+                }, 1000.0);
             }
 
             scene.on_game_event(event);
@@ -425,6 +432,9 @@ document.addEventListener("DOMContentLoaded", function() {
             const z_axis = glMatrix.vec3.fromValues(0.0, 0.0, 1.0);
 
             switch (event.key) {
+                case "Escape":
+                    hide_notify(200.0);
+                    break;
                 case 'p':
                     if (event.ctrlKey) {
                         event.preventDefault();
@@ -451,22 +461,43 @@ document.addEventListener("DOMContentLoaded", function() {
                     // CTRL + S -> save game to cookies
                     if (event.ctrlKey) {
                         event.preventDefault();
-                        setCookie('last-savegame-fen', chessboard.get_board_str(), _cookies_lifetime);
+                        setCookie('last-savegame-pgn', chessboard.get_board_pgn(), _cookies_lifetime);
                         show_notify("Game state saved", 2000.0);
-                    } else {
+                    }
+                    // ALT + S -> download savegame file
+                    else if (event.altKey) {
+                        event.preventDefault();
+                        const now = new Date();
+                        const dt_suffix = now.getFullYear() + '-'
+                                        + (now.getMonth()+1).toString().padStart(2,'0') + '-'
+                                        + now.getDate().toString().padStart(2,'0')
+                                        + '_'
+                                        + now.getHours().toString().padStart(2,'0') + '-'
+                                        + now.getMinutes().toString().padStart(2,'0') + '-'
+                                        + now.getSeconds().toString().padStart(2,'0');
+                        downloadContent('chess-savegame_' + dt_suffix + '.chess-sav', chessboard.get_board_pgn());
+                    }
+                    else {
                         if (_phys_forced) {
                             scene.table.rotate(z_axis, 5.0 * Math.PI / 180.0);
                         }
                     }
                     break;
                 case 'r':
+                    // CTRL+R -> load last saved game from cookies
                     if (event.ctrlKey) {
                         event.preventDefault();
-                        const saved_game = getCookie('last-savegame-fen');
+                        const saved_game = getCookie('last-savegame-pgn');
 
-                        if (saved_game !== '') {
+                        if (saved_game !== false) {
                             if (confirm("Are you sure you want to restore the last saved game?")) {
-                                const validated = chessboard.load_board_str(saved_game);
+                                const prev_game = chessboard.get_board_pgn();
+                                const validated = chessboard.load_board_pgn(saved_game);
+
+                                // Restore previous game if it was invalid
+                                if (!validated) {
+                                    chessboard.load_board_pgn(prev_game);
+                                }
 
                                 show_notify(
                                     validated
@@ -477,6 +508,27 @@ document.addEventListener("DOMContentLoaded", function() {
                         } else {
                             show_notify("No saved game to restore", 2000.0);
                         }
+                    }
+                    // ALT+R -> load savegame file
+                    else if (event.altKey) {
+                        event.preventDefault();
+
+                        // Open the file choosing dialog
+                        openFileDialog(function (file_content) {
+                            const prev_game = chessboard.get_board_pgn();
+                            const validated = chessboard.load_board_pgn(file_content);
+
+                            // Restore previous game if it was invalid
+                            if (!validated) {
+                                chessboard.load_board_pgn(prev_game);
+                            }
+
+                            show_notify(
+                                validated
+                                    ? "Saved game successfully restored"
+                                    : "Unable to restore the saved game", 2000.0
+                            );
+                        });
                     }
                     break;
                 case 'q':
