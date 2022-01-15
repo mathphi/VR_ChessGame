@@ -3,6 +3,7 @@ body {
     padding: 0;
     user-select: none;
     overflow: hidden;
+    font-family: Arial, sans-serif;
 }
 
 kbd {
@@ -26,14 +27,13 @@ kbd {
     overflow: hidden;
 }
 #top-bar {
-    position: absolute;
+    position: relative;
     padding: 10px;
     top: 0;
     left: 0;
     right: 0;
     background-color: rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-    font-family: Arial, sans-serif;
 }
 #top-bar div {
     display: inline-block;
@@ -72,7 +72,6 @@ input[type="checkbox"] {
 #notify_text {
     font-weight: bold;
     font-size: 20pt;
-    font-family: Arial, sans-serif;
 }
 #page-loader-overlay {
     position: absolute;
@@ -86,7 +85,6 @@ input[type="checkbox"] {
 
 div#sound {
     text-align: right;
-    font-family: Arial, sans-serif;
     margin-right: 10px;
     width: 30px;
     max-width: 30px;
@@ -116,7 +114,6 @@ div#sound:hover svg {
 
 div#info {
     text-align: right;
-    font-family: Arial, sans-serif;
     margin-right: 10px;
     width: 30px;
     max-width: 30px;
@@ -134,7 +131,6 @@ div#info_overlay {
     max-width: 40%;
     padding: 10px;
     color: white;
-    font-family: Arial, sans-serif;
     font-weight: bold;
     font-size: 10pt;
     background-color: rgba(0, 0, 0, 0.5);
@@ -157,6 +153,69 @@ div#info:hover div#info_overlay {
     transition: opacity 0.2s ease-in, visibility 0.2s;
 }
 
+div#scene {
+    text-align: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+}
+div#scene:hover {
+    opacity: 0.8;
+}
+div#scene.active {
+    opacity: 0.6;
+}
+
+div#scenes-panel {
+    position: relative;
+    min-height: 100vh;
+    top: 0;
+    float: right;
+    width: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-left: 1px solid rgba(255, 255, 255, 1.0);
+    visibility: hidden;
+    transition: width 0.5s ease-in-out, visibility 0.5s;
+}
+div#scenes-panel.shown {
+    width: 200px;
+    visibility: visible;
+    transition: width 0.5s ease-in-out, visibility 0.5s;
+}
+
+div#scenes-panel .scene-item {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+div#scenes-panel.shown .scene-item {
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out 0.3s;
+}
+
+.scene-item {
+    padding: 0 10px 10px;
+    margin: 5px;
+}
+.scene-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.scene-item.selected {
+    background-color: rgba(100, 255, 133, 0.35);
+}
+.scene-item span {
+    display: inline-block;
+    width: 100%;
+    margin: 5px 0;
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+.scene-item img {
+    width: 100%;
+    box-shadow: 0 0 5px black;
+}
+
 #ai-thinking-indicator {
     position: absolute;
     top: 80px;
@@ -165,7 +224,6 @@ div#info:hover div#info_overlay {
     color: white;
     font-size: 14pt;
     text-shadow: black 0 0 10px;
-    font-family: Arial, sans-serif;
     text-align: center;
     opacity: 0.0;
     visibility: hidden;
