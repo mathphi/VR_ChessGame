@@ -27,6 +27,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
 
+    // AI Thinking indicator
+    const _ai_thinking_indicator = document.querySelector("#ai-thinking-indicator");
+
     // Top-bar elements
     const _auto_cam_input = document.querySelector("#auto-cam");
     const _ai_enabled_input = document.querySelector("#ai-enabled");
@@ -273,6 +276,7 @@ document.addEventListener("DOMContentLoaded", function() {
             camera.set_special_orientation(2);
         }, 2000.0);
 
+        // TURN CHANGE EVENT
         function on_turn_change_event(turn) {
             scene.set_current_turn(turn);
 
@@ -326,9 +330,20 @@ document.addEventListener("DOMContentLoaded", function() {
             scene.on_game_event(event);
         }
 
+        // CHESS AI THINKING EVENT
+        function on_ai_thinking_event(is_thinking) {
+            if (is_thinking) {
+                _ai_thinking_indicator.classList.add("shown");
+            }
+            else {
+                _ai_thinking_indicator.classList.remove("shown");
+            }
+        }
+
         // Register chessboard callbacks
         chessboard.register_on_turn_change_callback(on_turn_change_event);
         chessboard.register_on_game_event_callback(on_game_event);
+        chessboard.register_on_ai_thinking_callback(on_ai_thinking_event);
 
         // MOUSE EVENTS
         function on_mouse_event(event) {
