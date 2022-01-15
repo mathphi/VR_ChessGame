@@ -2,6 +2,7 @@ body {
     margin: 0;
     padding: 0;
     user-select: none;
+    overflow: hidden;
 }
 
 kbd {
@@ -86,17 +87,21 @@ input[type="checkbox"] {
 div#sound {
     text-align: right;
     font-family: Arial, sans-serif;
-    float: right;
     margin-right: 10px;
     width: 30px;
     max-width: 30px;
     min-width: 30px;
 }
 
+.right-box {
+    float: right;
+    min-width: 0 !important;
+    width: fit-content !important;
+}
+
 div#info {
     text-align: right;
     font-family: Arial, sans-serif;
-    float: right;
     margin-right: 10px;
     width: 30px;
     max-width: 30px;
