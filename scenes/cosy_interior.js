@@ -19,7 +19,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     }
 
     // CUBEMAP
-    const cubemap = await make_cubemap(gl, 'objects/misc/cube.obj', 'textures/cubemaps/Nalovardo', 1024);
+    const cubemap = await make_cubemap(gl, 'objects/misc/cube.obj', 'textures/cubemaps/Forest2', 2048);
 
     // TEXTURES
     const table_tex = await load_texture(gl, 'textures/Wood.jpg', true);
@@ -95,9 +95,10 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         glMatrix.vec3.fromValues(0.0, 25.0, -110.0),
         glMatrix.vec3.fromValues(5.0, 2.5, 0.0));
 
-    const yellow_pl = light_set.add_point_light(
-        glMatrix.vec3.fromValues(0.0, 20.0, 50.0),
-        glMatrix.vec3.fromValues(1.0, 1.0, 0.5));
+    const white_pl1 = light_set.add_point_light(
+        glMatrix.vec3.fromValues(150.0, 15.0, 0.0),
+        glMatrix.vec3.fromValues(20.0, 20.0, 20.0));
+
     // Spotlights
     const lamp_sl = light_set.add_spot_light(
         glMatrix.vec3.fromValues(10.0, 7.0, 15.0),
@@ -106,6 +107,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         20,
         130
     );
+
 
     // OBJECTS PHYSICS
     physics_engine.register_object(table_obj, 0.0);
