@@ -34,6 +34,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const plant_bm = await load_texture(gl, 'textures/plant_bm.jpg', true);
     const walls_bm = await load_texture(gl, 'textures/brick_walls_bm.jpg', true);
     const ground_bm = await load_texture(gl, 'textures/floor_bm.jpg', true);
+    const ceiling_bm = await load_texture(gl, 'textures/ceiling_bm.jpg', true)
     // MATERIALS
     const floor_material = make_material(
         'floor',
@@ -59,7 +60,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const plant_mesh = await load_mesh('objects/misc/plant.obj', true, 3.0);
     const walls_mesh = await load_mesh('objects/misc/walls.obj', true, 1.0);
     const ground_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
-    const ceiling_mesh = await load_mesh('objects/misc/ground_plane.obj', false);
+    const ceiling_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
 
     // Make the buffer and the functions to draw the objects
     const glass_obj = make_object(gl, glass_mesh);
@@ -75,7 +76,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const ch_clk_sec_hand_r_obj = make_object(gl, ch_clk_sec_hand_mesh);
     const plant_obj = make_object(gl, plant_mesh, plant_tex, plant_bm);
     const walls_obj = make_object(gl, walls_mesh, walls_tex, walls_bm);
-    const ceiling_obj = make_object(gl, ceiling_mesh, null, null, ceiling_material);
+    const ceiling_obj = make_object(gl, ceiling_mesh, null, ceiling_bm, ceiling_material);
     const ground_obj = make_object(gl, ground_mesh, ground_tex, ground_bm, floor_material);
 
 
