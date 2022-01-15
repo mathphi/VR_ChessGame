@@ -6,6 +6,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
+input {
+    cursor: pointer;
+}
+
 kbd {
     background-color: #eee;
     border-radius: 3px;
@@ -84,6 +88,7 @@ input[type="checkbox"] {
 }
 
 div#sound {
+    cursor: pointer;
     text-align: right;
     margin-right: 10px;
     width: 30px;
@@ -107,6 +112,7 @@ div#sound:hover svg {
 }
 
 div#fullscreen {
+    cursor: pointer;
     text-align: right;
     margin-right: 10px;
     width: 30px;
@@ -178,6 +184,7 @@ div#info:hover div#info_overlay {
 }
 
 div#scene {
+    cursor: pointer;
     text-align: right;
     margin-right: 10px;
     width: 30px;
