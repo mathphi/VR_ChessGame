@@ -1,0 +1,19 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 04.07.2017 09:51:57
+
+newmtl glass_milk_new
+Color 20.0000000 20.000000 20.000000
+Spec_e 100.0
+Spec_s 10.0
+Refl_s 0.2
+Refr_s 0.2
+Refr_i 1.52
+
+
+newmtl metal_grey_new
+Color 0.200000 0.200000 0.200000
+Spec_e 60.0
+Spec_s 0.8
+Refl_s 0.5
+Refr_s 0.0
+Refr_i 1.52
