@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", function() {
         return "Are you sure you want to quit the game?";
     }
 
-    // Scene changed
+    // Scene selection
     let _scene_changed = false;
+    let _selected_scene = 'evening_lights';
 
     // Cookies life
     const _cookies_lifetime = 365;  // Days
@@ -135,11 +136,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // Initialize UI according to cookies
 
         // Selected scene settings
-        const c_selected_scene = getCookie('selected_scene');
-        _selected_scene_input.value = (c_selected_scene !==  false ? c_selected_scene : 'evening_lights');
-        const c_scene_changed = getCookie('scene_changed');
-        _scene_changed = c_scene_changed;
-        eraseCookie('scene_changed');
+        _selected_scene = getCookie('selected_scene');
+        _scene_changed = getCookie('scene_changed');
+        eraseCookie('scene_changed');   // This cookie must be destroyed after use
 
         // Auto camera rotation settings
         const c_cam_auto_rotate = getCookie('cam_auto_rotate');
@@ -235,18 +234,11 @@ document.addEventListener("DOMContentLoaded", function() {
         );
 
         // Event when AI checkbox is changed
-        _selected_scene_input.addEventListener('change', on_selected_scene_input_changed);
         _ai_enabled_input.addEventListener('change', on_ai_config_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
         _volume_button.addEventListener("click", toggle_sound);
 
-        function on_selected_scene_input_changed() {
-            // Store configuration in cookies
-            setCookie('selected_scene', _selected_scene_input.value, _cookies_lifetime);
-            setCookie('scene_changed', chessboard.get_board_pgn(), _cookies_lifetime);
-            location.reload();
-        }
 
         function on_ai_config_changed() {
             // Store configuration in cookies
@@ -284,7 +276,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // SCENE
-        const scene = await make_scene(_selected_scene_input.value, gl, camera, chessboard, physics_engine, light_set, particle_engine);
+        const scene = await make_scene(_selected_scene, gl, camera, chessboard, physics_engine, light_set, particle_engine);
         scene.set_current_turn(chessboard.get_turn());
 
         // Set initial camera position to special position 0 (defined by the scene)
@@ -294,6 +286,21 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function () {
             camera.set_special_orientation(2);
         }, 2000.0);
+
+
+        // Initialize the scene panel
+        initialize_scene_selector(_selected_scene, on_selected_scene_changed);
+        function on_selected_scene_changed(new_scene) {
+            // Store configuration in cookies
+            setCookie('selected_scene', new_scene, _cookies_lifetime);
+            setCookie('scene_changed', chessboard.get_board_pgn(), _cookies_lifetime);
+
+            // Disable the warning dialog
+            window.onbeforeunload = null;
+
+            // Reload the page
+            location.reload();
+        }
 
         // TURN CHANGE EVENT
         function on_turn_change_event(turn) {
@@ -373,20 +380,14 @@ document.addEventListener("DOMContentLoaded", function() {
         // Chessboard options
         chessboard.set_sound_on(_sound_on);
 
-        if (_scene_changed !== false) {
-            const prev_game = chessboard.get_board_pgn();
+        // Restore game from last scene (if the scene has been changed)
+        if (_scene_changed !== false && _scene_changed !== '') {
             const validated = chessboard.load_board_pgn(_scene_changed);
 
-            // Restore previous game if it was invalid
+            // Reset the game if it was invalid
             if (!validated) {
-                chessboard.load_board_pgn(prev_game);
+                chessboard.reset_game();
             }
-
-            show_notify(
-                validated
-                    ? _selected_scene_input.options[_selected_scene_input.selectedIndex].text
-                    : "Unable to restore the saved game", 2000.0
-            );
         }
 
         // MOUSE EVENTS
