@@ -121,6 +121,22 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     physics_engine.register_object(plant_obj, 0.0);
     //physics_engine.register_object(ground_obj, 0.0);
 
+
+    // Define specific materials for chess pieces in this scene
+    const _piece_white_material = make_material(
+        'white_piece',
+        glMatrix.vec3.fromValues(1.0, 1.0, 1.0),
+        100.0, 2.0,
+        0.2
+    );
+    const _piece_black_material = make_material(
+        'black_piece',
+        glMatrix.vec3.fromValues(0.1, 0.1, 0.1),
+        100.0, 2.0,
+        0.2
+    );
+    chessboard.set_pieces_material(_piece_white_material, _piece_black_material);
+
     // Set initial object position, etc
     reset(0.0);
 
@@ -253,6 +269,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
             plant_obj.reset_physics_motion();
         }
 
+        table_obj.get_physics_body().set_mass(0.0);
         lamp_table_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);

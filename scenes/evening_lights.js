@@ -216,6 +216,7 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
             plant_obj.reset_physics_motion();
         }
 
+        table_obj.get_physics_body().set_mass(0.0);
         lamp_table_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_obj.get_physics_body().set_mass(force ? 2.0 : 0.0);
         ch_clk_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
