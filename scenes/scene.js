@@ -60,11 +60,4 @@ async function make_scene(name, gl, camera, chessboard, physics_engine, light_se
     return scene_generator(gl, camera, chessboard, physics_engine, light_set, particle_engine);
 }
 
-async function make_niagara_falls_scene(gl, camera, chessboard, physics_engine, light_set, particle_engine) {
-
-
-    return {
-
-    }
-}
 
