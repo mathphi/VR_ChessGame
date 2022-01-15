@@ -31,30 +31,33 @@
         <input type="button" id="new-game" name="new-game" value="New game">
     </div>
     <div class="right-box">
-        <div id="sound">
-            <svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">
+        <div id="sound" snd="on">
+            <svg id="snd-on" style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+            </svg>
+            <svg id="snd-off" style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z" />
             </svg>
         </div>
         <div id="info">
             <svg style="width:24px;height:24px;margin: -9px 0;" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
             </svg>
-            <div id="info_overlay">
-                <p><kbd>RightClick</kbd> : Camera rotation</p>
-                <p><kbd>LeftClick</kbd> : Select piece</p>
-                <p><kbd>Space</kbd> : Center view on chessboard</p>
-                <p><kbd>Ctrl</kbd> + <kbd>LeftClick</kbd> : Unlock selected item</p>
-                <p><kbd>Ctrl</kbd> + <kbd>RightClick</kbd> : Camera translation</p>
-                <p><kbd>Ctrl</kbd> + <kbd>S</kbd> : Save game</p>
-                <p><kbd>Ctrl</kbd> + <kbd>R</kbd> : Load last saved game</p>
-                <p><kbd>Ctrl</kbd> + <kbd>Z</kbd> : Undo last action</p>
-                <p><kbd>Ctrl</kbd> + <kbd>G</kbd> : New game</p>
-                <p><kbd>Ctrl</kbd> + <kbd>M</kbd> : Invert mouse buttons</p>
-                <p><kbd>Ctrl</kbd> + <kbd>P</kbd> : Unlock all objects</p>
-                <p><kbd>Z</kbd>&nbsp;<kbd>Q</kbd>&nbsp;<kbd>S</kbd>&nbsp;<kbd>D</kbd> : Rotate table (if objects unlocked)</p>
-                <p><kbd>NumKey</kbd> : Preset camera views</p>
-            </div>
+        </div>
+        <div id="info_overlay">
+            <p><kbd>RightClick</kbd> : Camera rotation</p>
+            <p><kbd>LeftClick</kbd> : Select piece</p>
+            <p><kbd>Space</kbd> : Center view on chessboard</p>
+            <p><kbd>Ctrl</kbd> + <kbd>LeftClick</kbd> : Unlock selected item</p>
+            <p><kbd>Ctrl</kbd> + <kbd>RightClick</kbd> : Camera translation</p>
+            <p><kbd>Ctrl</kbd> + <kbd>S</kbd> : Save game</p>
+            <p><kbd>Ctrl</kbd> + <kbd>R</kbd> : Load last saved game</p>
+            <p><kbd>Ctrl</kbd> + <kbd>Z</kbd> : Undo last action</p>
+            <p><kbd>Ctrl</kbd> + <kbd>G</kbd> : New game</p>
+            <p><kbd>Ctrl</kbd> + <kbd>M</kbd> : Invert mouse buttons</p>
+            <p><kbd>Ctrl</kbd> + <kbd>P</kbd> : Unlock all objects</p>
+            <p><kbd>Z</kbd>&nbsp;<kbd>Q</kbd>&nbsp;<kbd>S</kbd>&nbsp;<kbd>D</kbd> : Rotate table (if objects unlocked)</p>
+            <p><kbd>NumKey</kbd> : Preset camera views</p>
         </div>
     </div>
 </div>
@@ -95,7 +98,7 @@
     const _cookies_lifetime = 365;  // Days
 
     // Sound On
-    let sound_on = true;
+    let _sound_on = false;
 
     // Pager overlay
     const _page_loader_overlay = document.querySelector("#page-loader-overlay");
@@ -215,7 +218,8 @@
         _ai_level_input.value = (c_ai_level !== '' ? c_ai_level : '1');
 
         // Sound settings
-        sound_on = getCookie('sound_on') === "true" ? false : true;
+        _sound_on = getCookie('sound_on') === "true";
+        _volume_button.setAttribute('snd', _sound_on ? 'on' : 'off');
     }
 
     function get_mouse_pos(canvas, evt) {
@@ -295,14 +299,13 @@
         const chessboard = await make_chessboard(
             gl, camera, physics_engine, light_set, particle_engine
         );
+        chessboard.set_sound_on(_sound_on);
 
         // Event when AI checkbox is changed
         _ai_enabled_input.addEventListener('change', on_ai_config_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
-        _volume_button.addEventListener("click", activate_sound);
-
-        activate_sound();
+        _volume_button.addEventListener("click", toggle_sound);
 
         function on_ai_config_changed() {
             // Store configuration in cookies
@@ -332,25 +335,11 @@
             }
         }
 
-        
-        function activate_sound() {
-            sound_on = !sound_on;
-            setCookie('sound_on', sound_on, _cookies_lifetime);
-            chessboard.set_sound_on(sound_on);
-            if(sound_on){
-                _volume_button.innerHTML = 
-                `<svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">`+
-                `<path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />`+
-                `</svg>`
-                ;
-            }
-            else{
-                _volume_button.innerHTML = 
-                `<svg style="width:24px;height:24px;margin: -9px 0" viewBox="0 0 24 24">`+
-                `<path fill="currentColor" d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z" />`+
-                `</svg>`
-                ;
-            }
+        function toggle_sound() {
+            _sound_on = !_sound_on;
+            setCookie('sound_on', _sound_on, _cookies_lifetime);
+            _volume_button.setAttribute('snd', _sound_on ? 'on' : 'off');
+            chessboard.set_sound_on(_sound_on);
         }
 
         // SCENE
@@ -402,6 +391,7 @@
                         show_game_lost();
                     }, 2500.0);
                     scene.animateGameLost();
+                    chessboard.playEndgameSound("lose");
                 }
                 else {
                     // If a player won
@@ -417,6 +407,7 @@
                     show_game_draw();
                 }, 2500.0);
                 scene.animateGameDraw();
+                chessboard.playEndgameSound("draw");
             }
 
             scene.on_game_event(event);
@@ -612,7 +603,7 @@
             prev_time = time;
 
             // Update elapsed label
-            elapsedElem.textContent = "Elapsed: " + timeToHuman(time);
+            elapsedElem.innerHTML = "Elapsed: " + timeToHuman(time);
             // Update the physics
             physics_engine.update(delta_time / 1000.0); // Delta time in seconds
 
@@ -705,7 +696,15 @@
             const min = Math.floor(t_sec % 60);
             const hour = Math.floor(t_sec / 60.0);
 
-            return hour.toFixed(0) + 'h' + min.toFixed(0) + 'm' + sec.toFixed(0) + 's';
+            let str = '';
+            if (hour > 0) {
+                str += hour.toFixed(0) + 'h&nbsp;';
+            }
+            if (min > 0) {
+                str += min.toFixed(0) + 'm&nbsp;';
+            }
+
+            return str + sec.toFixed(0) + 's';
         }
 
         // CANVAS & CAMERA RESIZE WITH WEBPAGE

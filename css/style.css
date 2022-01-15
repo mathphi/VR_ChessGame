@@ -92,6 +92,18 @@ div#sound {
     max-width: 30px;
     min-width: 30px;
 }
+#snd-on {
+    display: none;
+}
+#snd-off {
+    display: none;
+}
+#sound[snd="on"] #snd-on {
+    display: inline-block;
+}
+#sound[snd="off"] #snd-off {
+    display: inline-block;
+}
 
 .right-box {
     float: right;
@@ -120,16 +132,22 @@ div#info_overlay {
     padding: 10px;
     color: white;
     font-family: Arial, sans-serif;
+    font-weight: bold;
     font-size: 10pt;
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     text-align: left;
     vertical-align: middle;
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in 0.5s, visibility 0.7s;
 }
 
-div#info:hover div#info_overlay {
+div#info:hover + div#info_overlay {
     display: block;
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.2s ease-in, visibility 0.2s;
 }
 
 .loader {
