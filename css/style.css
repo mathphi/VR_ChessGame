@@ -38,23 +38,54 @@ kbd {
     right: 0;
     background-color: rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    text-align: center;
 }
+
 #top-bar div {
     display: inline-block;
     color: white;
     font-size: 11pt;
     text-shadow: black 0 0 10px;
-    min-width: 120px;
-    max-width: 200px;
     margin: 0;
     width: 14%;
     text-align: center;
 }
 
+.left-box {
+    float: left;
+    min-width: 0 !important;
+    max-width: unset !important;
+    width: fit-content !important;
+}
+
+div#fps {
+    width: 100px;
+    text-align: left;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+div#elapsed {
+    width: 150px;
+    text-align: left;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#page-loader-overlay {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+}
 
 input[type="checkbox"] {
     vertical-align: middle;
 }
+
 #canvas_overlay {
     position: absolute;
     margin: auto;
@@ -73,22 +104,13 @@ input[type="checkbox"] {
     text-align: center;
     vertical-align: middle;
 }
+
 #notify_text {
     font-weight: bold;
     font-size: 20pt;
 }
-#page-loader-overlay {
-    position: absolute;
-    margin: auto;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: white;
-}
 
-
-div#load {
+.topbar-icon {
     cursor: pointer;
     text-align: right;
     margin-right: 10px;
@@ -96,30 +118,90 @@ div#load {
     max-width: 30px;
     min-width: 30px;
 }
+
+.center-box {
+    min-width: 0 !important;
+    max-width: unset !important;
+    width: fit-content !important;
+}
+
+div#auto-cam {
+    margin-right: 2px;
+}
+
+div#auto-cam:hover svg {
+    opacity: 0.8;
+}
+
+#cam-on {
+    display: none;
+    -webkit-filter: drop-shadow(0px 0px 4px rgba(0, 255, 0, .7));
+    filter: drop-shadow(0px 0px 4px rgba(0, 255, 0, .7));
+}
+
+#cam-off {
+    display: none;
+}
+
+#auto-cam[auto-cam='on'] #cam-on {
+    display: inline-block;
+}
+
+#auto-cam[auto-cam='off'] #cam-off {
+    display: inline-block;
+}
+
+div#ai-enabled {
+
+}
+
+div#ai-enabled:hover svg {
+    opacity: 0.8;
+}
+
+#ai-on {
+    display: none;
+    -webkit-filter: drop-shadow(0px 0px 4px rgba(0, 255, 0, .7));
+    filter: drop-shadow(0px 0px 4px rgba(0, 255, 0, .7));
+}
+
+#ai-off {
+    display: none;
+}
+
+#ai-enabled[ai="on"] #ai-on {
+    display: inline-block;
+}
+
+#ai-enabled[ai="off"] #ai-off {
+    display: inline-block;
+}
+
+
+.right-box {
+    float: right;
+    min-width: 0 !important;
+    max-width: unset !important;
+    width: fit-content !important;
+}
+
+div#load {
+
+}
+
 div#load:hover svg {
     opacity: 0.8;
 }
 
-
 div#save {
-    cursor: pointer;
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
+
 }
 div#save:hover svg {
     opacity: 0.8;
 }
 
 div#sound {
-    cursor: pointer;
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
+
 }
 div#sound:hover svg {
     opacity: 0.8;
@@ -138,12 +220,7 @@ div#sound:hover svg {
 }
 
 div#fullscreen {
-    cursor: pointer;
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
+
 }
 div#fullscreen:hover svg{
     opacity: 0.8;
@@ -161,20 +238,8 @@ div#fullscreen:hover svg{
     display: inline-block;
 }
 
-
-.right-box {
-    float: right;
-    min-width: 0 !important;
-    max-width: unset !important;
-    width: fit-content !important;
-}
-
 div#info {
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
+
 }
 
 div#info_overlay {
@@ -211,12 +276,7 @@ div#info:hover div#info_overlay {
 }
 
 div#scene {
-    cursor: pointer;
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
+
 }
 div#scene:hover {
     opacity: 0.8;
@@ -276,64 +336,11 @@ div#scenes-panel.shown .scene-item {
 
 
 div#new-game {
-    text-align: right;
-    margin-right: 10px;
-    width: 30px;
-    max-width: 30px;
-    min-width: 30px;
-    cursor: pointer;
+
 }
 
 div#new-game:hover svg {
     opacity: 0.8;
-}
-
-div#auto-cam {
-    cursor: pointer;
-}
-
-div#auto-cam:hover svg {
-    opacity: 0.8;
-}
-
-#cam-on {
-    display: none;
-    -webkit-filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
-    filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
-}
-
-#cam-off {
-    display: none;
-}
-
-#auto-cam[auto-cam='on'] #cam-on {
-    display: inline-block;
-}
-
-#auto-cam[auto-cam='off'] #cam-off {
-    display: inline-block;
-}
-
-div#ai-enabled {
-    cursor: pointer;
-}
-
-div#ai-enabled:hover svg {
-    opacity: 0.8;
-}
-#ai-on {
-    display: none;
-    -webkit-filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
-    filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
-}
-#ai-off {
-    display: none;
-}
-#ai-enabled[ai="on"] #ai-on {
-    display: inline-block;
-}
-#ai-enabled[ai="off"] #ai-off {
-    display: inline-block;
 }
 
 #ai-thinking-indicator {
