@@ -281,7 +281,7 @@ div#fullscreen:hover svg{
 
 
 div#info {
-
+    cursor: unset;
 }
 
 div#info_overlay {

@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
         eraseCookie('scene_changed');   // This cookie must be destroyed after use
 
         // Auto camera rotation settings
-        _auto_cam_on = getCookie('cam_auto_rotate') === true;
+        _auto_cam_on = getCookie('cam_auto_rotate') === "true";
         _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on' : 'off');
 
         // AI settings
@@ -231,8 +231,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         function on_cam_config_changed() {
             _auto_cam_on = !_auto_cam_on;
-            setCookie('cam_auto_rotate', _auto_cam_on? 1 : 0, _cookies_lifetime);
-            _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on':'off');
+            setCookie('cam_auto_rotate', _auto_cam_on ? "true" : "false", _cookies_lifetime);
+            _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on' : 'off');
         }
 
         _auto_cam_input.addEventListener('click', on_cam_config_changed);
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         function on_ai_config_changed() {
             // Store configuration in cookies
-            setCookie('ai_enabled', _ai_on ? 1 : 0, _cookies_lifetime);
+            setCookie('ai_enabled', _ai_on ? "true" : "false", _cookies_lifetime);
             setCookie('ai_level', _ai_level_input.value, _cookies_lifetime);
 
             // Disable select input if AI disabled
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         function toggle_sound() {
             _sound_on = !_sound_on;
-            setCookie('sound_on', _sound_on, _cookies_lifetime);
+            setCookie('sound_on', _sound_on ? "true" : "false", _cookies_lifetime);
             _volume_button.setAttribute('snd', _sound_on ? 'on' : 'off');
             chessboard.set_sound_on(_sound_on);
         }
