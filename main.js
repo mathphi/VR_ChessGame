@@ -28,6 +28,12 @@ document.addEventListener("DOMContentLoaded", function() {
     // Sound On
     let _sound_on = false;
 
+    // Auto-cam On
+    let _auto_cam_on = false;
+
+    //AI On
+    let _ai_on = true;
+
     // Fullscreen
     let _fullscreen_on = false;
 
@@ -44,6 +50,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const _new_game_button = document.querySelector("#new-game");
     const _volume_button = document.querySelector("#sound");
     const _fullscreen_button = document.querySelector("#fullscreen");
+    const _save_button = document.querySelector("#save");
+    const _load_button = document.querySelector("#load");
 
     // Notification functions
     let _notify_timeout_id = null;
@@ -144,13 +152,13 @@ document.addEventListener("DOMContentLoaded", function() {
         eraseCookie('scene_changed');   // This cookie must be destroyed after use
 
         // Auto camera rotation settings
-        const c_cam_auto_rotate = getCookie('cam_auto_rotate');
-        _auto_cam_input.checked = (c_cam_auto_rotate !== '0');
+        _auto_cam_on = getCookie('cam_auto_rotate') === true;
+        _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on' : 'off');
 
         // AI settings
-        const c_ai_enabled = getCookie('ai_enabled');
+        _ai_on = getCookie('ai_enabled') === "true";
+        _ai_enabled_input.setAttribute('ai', _ai_on ? 'on' : 'off');
         const c_ai_level = getCookie('ai_level');
-        _ai_enabled_input.checked = (c_ai_enabled === '1');
         _ai_level_input.value = (c_ai_level !== false ? c_ai_level : '1');
 
         // Sound settings
@@ -222,10 +230,12 @@ document.addEventListener("DOMContentLoaded", function() {
         const u_cam_pos = gl.getUniformLocation(shader_common.program, 'u_cam_pos');
 
         function on_cam_config_changed() {
-            setCookie('cam_auto_rotate', _auto_cam_input.checked ? 1 : 0, _cookies_lifetime);
+            _auto_cam_on = !_auto_cam_on;
+            setCookie('cam_auto_rotate', _auto_cam_on? 1 : 0, _cookies_lifetime);
+            _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on':'off');
         }
 
-        _auto_cam_input.addEventListener('change', on_cam_config_changed);
+        _auto_cam_input.addEventListener('click', on_cam_config_changed);
 
         // PARTICLES ENGINE
         const particle_engine = make_particles_engine(gl, camera);
@@ -237,25 +247,61 @@ document.addEventListener("DOMContentLoaded", function() {
         );
 
         // Event when AI checkbox is changed
-        _ai_enabled_input.addEventListener('change', on_ai_config_changed);
+        _ai_enabled_input.addEventListener('click', on_ai_config_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
         _volume_button.addEventListener("click", toggle_sound);
         _fullscreen_button.addEventListener("click", toggle_fullscreen);
+        _save_button.addEventListener("click", save_game);
+        _load_button.addEventListener("click", load_game);
+
+        function save_game() {
+            const now = new Date();
+            const dt_suffix = now.getFullYear() + '-'
+                            + (now.getMonth()+1).toString().padStart(2,'0') + '-'
+                            + now.getDate().toString().padStart(2,'0')
+                            + '_'
+                            + now.getHours().toString().padStart(2,'0') + '-'
+                            + now.getMinutes().toString().padStart(2,'0') + '-'
+                            + now.getSeconds().toString().padStart(2,'0');
+            downloadContent('chess-savegame_' + dt_suffix + '.chess-sav', chessboard.get_board_pgn());
+        }
+
+        function load_game() {
+            // Open the file choosing dialog
+            openFileDialog(function (file_content) {
+                const prev_game = chessboard.get_board_pgn();
+                const validated = chessboard.load_board_pgn(file_content);
+
+                // Restore previous game if it was invalid
+                if (!validated) {
+                    chessboard.load_board_pgn(prev_game);
+                }
+
+                show_notify(
+                    validated
+                        ? "Saved game successfully restored"
+                        : "Unable to restore the saved game", 2000.0
+                );
+            });
+        }
 
         function on_ai_config_changed() {
+            _ai_on = !_ai_on;
             // Store configuration in cookies
-            setCookie('ai_enabled', _ai_enabled_input.checked ? 1 : 0, _cookies_lifetime);
+            setCookie('ai_enabled', _ai_on ? 1 : 0, _cookies_lifetime);
             setCookie('ai_level', _ai_level_input.value, _cookies_lifetime);
 
             // Disable select input if AI disabled
-            _ai_level_input.disabled = !_ai_enabled_input.checked;
+            _ai_level_input.disabled = !_ai_on;
 
             // Set the AI level and state
             chessboard.enable_ai(
-                _ai_enabled_input.checked,
+                _ai_on,
                 parseInt(_ai_level_input.value)
             );
+            
+            _ai_enabled_input.setAttribute('ai', _ai_on ? 'on' : 'off');
         }
 
         function toggle_fullscreen(){
@@ -334,7 +380,7 @@ document.addEventListener("DOMContentLoaded", function() {
             scene.set_current_turn(turn);
 
             // Change camera view to player
-            if (!chessboard.is_ai_enabled() && _auto_cam_input.checked) {
+            if (!chessboard.is_ai_enabled() && _auto_cam_on) {
                 setTimeout(function () {
                     camera.set_special_orientation(turn === 'w' ? 2 : 8, 2000.0);
                 }, 1000.0);
@@ -473,6 +519,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     // If the picked object comes from the chessboard
                     if (picked_body.orig_object.from_chess !== undefined) {
                         // Send the information to the chessboard
+
                         chessboard.on_chess_hover(
                             picked_body.orig_object,
                             glMatrix.vec3.fromValues(
@@ -532,15 +579,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     // ALT + S -> download savegame file
                     else if (event.altKey) {
                         event.preventDefault();
-                        const now = new Date();
-                        const dt_suffix = now.getFullYear() + '-'
-                                        + (now.getMonth()+1).toString().padStart(2,'0') + '-'
-                                        + now.getDate().toString().padStart(2,'0')
-                                        + '_'
-                                        + now.getHours().toString().padStart(2,'0') + '-'
-                                        + now.getMinutes().toString().padStart(2,'0') + '-'
-                                        + now.getSeconds().toString().padStart(2,'0');
-                        downloadContent('chess-savegame_' + dt_suffix + '.chess-sav', chessboard.get_board_pgn());
+                        save_game();
                     }
                     else {
                         if (_phys_forced) {
@@ -578,22 +617,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     else if (event.altKey) {
                         event.preventDefault();
 
-                        // Open the file choosing dialog
-                        openFileDialog(function (file_content) {
-                            const prev_game = chessboard.get_board_pgn();
-                            const validated = chessboard.load_board_pgn(file_content);
-
-                            // Restore previous game if it was invalid
-                            if (!validated) {
-                                chessboard.load_board_pgn(prev_game);
-                            }
-
-                            show_notify(
-                                validated
-                                    ? "Saved game successfully restored"
-                                    : "Unable to restore the saved game", 2000.0
-                            );
-                        });
+                        load_game();
                     }
                     break;
                 case 'q':
