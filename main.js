@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function() {
         );
 
         // Event when AI checkbox is changed
-        _ai_enabled_input.addEventListener('click', on_ai_config_changed);
+        _ai_enabled_input.addEventListener('click', on_ai_enabled_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
         _new_game_button.addEventListener('click', restart_new_game);
         _volume_button.addEventListener("click", toggle_sound);
@@ -286,8 +286,12 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        function on_ai_config_changed() {
+        function on_ai_enabled_changed() {
             _ai_on = !_ai_on;
+            on_ai_config_changed();
+        }
+
+        function on_ai_config_changed() {
             // Store configuration in cookies
             setCookie('ai_enabled', _ai_on ? 1 : 0, _cookies_lifetime);
             setCookie('ai_level', _ai_level_input.value, _cookies_lifetime);
