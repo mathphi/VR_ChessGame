@@ -356,6 +356,7 @@ div#scenes-panel.shown .scene-item {
 .scene-item {
     padding: 0 10px 10px;
     margin: 5px;
+    cursor: pointer;
 }
 .scene-item:hover {
     background-color: rgba(255, 255, 255, 0.2);
