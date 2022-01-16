@@ -138,6 +138,45 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     );
     chessboard.set_pieces_material(_piece_white_material, _piece_black_material);
 
+
+    // SNOW !
+    const snow_system1 = make_particle_flow(
+        gl, camera,
+        ParticleType.Sphere,
+        glMatrix.vec3.fromValues(65.0, 38.0, -103.0), glMatrix.vec3.fromValues(65.0, 38.0, -43.0), glMatrix.vec3.fromValues(0.2, -1.0, 0.0),
+        40.0, 40.0,
+        500, 0.5,
+        glMatrix.vec3.fromValues(1.0, 1.0, 1.0), 0.1,
+        2.5, glMatrix.vec3.fromValues(0.0, -0.05, 0.0),
+        0.2
+    );
+    const snow_system2 = make_particle_flow(
+        gl, camera,
+        ParticleType.Sphere,
+        glMatrix.vec3.fromValues(65.0, 38.0, -30.0), glMatrix.vec3.fromValues(65.0, 38.0, 30.0), glMatrix.vec3.fromValues(0.2, -1.0, 0.0),
+        40.0, 40.0,
+        500, 0.5,
+        glMatrix.vec3.fromValues(1.0, 1.0, 1.0), 0.1,
+        2.5, glMatrix.vec3.fromValues(0.0, -0.05, 0.0),
+        0.2
+    );
+    const snow_system3 = make_particle_flow(
+        gl, camera,
+        ParticleType.Sphere,
+        glMatrix.vec3.fromValues(65.0, 38.0, 43.0), glMatrix.vec3.fromValues(65.0, 38.0, 103.0), glMatrix.vec3.fromValues(0.2, -1.0, 0.0),
+        40.0, 40.0,
+        500, 0.5,
+        glMatrix.vec3.fromValues(1.0, 1.0, 1.0), 0.1,
+        2.5, glMatrix.vec3.fromValues(0.0, -0.05, 0.0),
+        0.2
+    );
+
+    // Register the particle system
+    particle_engine.register_particle_system(snow_system1);
+    particle_engine.register_particle_system(snow_system2);
+    particle_engine.register_particle_system(snow_system3);
+
+
     // Set initial object position, etc
     reset(0.0);
 
