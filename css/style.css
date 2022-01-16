@@ -87,6 +87,32 @@ input[type="checkbox"] {
     background-color: white;
 }
 
+
+div#load {
+    cursor: pointer;
+    text-align: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+}
+div#load:hover svg {
+    opacity: 0.8;
+}
+
+
+div#save {
+    cursor: pointer;
+    text-align: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+}
+div#save:hover svg {
+    opacity: 0.8;
+}
+
 div#sound {
     cursor: pointer;
     text-align: right;
@@ -139,6 +165,7 @@ div#fullscreen:hover svg{
 .right-box {
     float: right;
     min-width: 0 !important;
+    max-width: unset !important;
     width: fit-content !important;
 }
 
@@ -245,6 +272,68 @@ div#scenes-panel.shown .scene-item {
 .scene-item img {
     width: 100%;
     box-shadow: 0 0 5px black;
+}
+
+
+div#new-game {
+    text-align: right;
+    margin-right: 10px;
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+    cursor: pointer;
+}
+
+div#new-game:hover svg {
+    opacity: 0.8;
+}
+
+div#auto-cam {
+    cursor: pointer;
+}
+
+div#auto-cam:hover svg {
+    opacity: 0.8;
+}
+
+#cam-on {
+    display: none;
+    -webkit-filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
+    filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
+}
+
+#cam-off {
+    display: none;
+}
+
+#auto-cam[auto-cam='on'] #cam-on {
+    display: inline-block;
+}
+
+#auto-cam[auto-cam='off'] #cam-off {
+    display: inline-block;
+}
+
+div#ai-enabled {
+    cursor: pointer;
+}
+
+div#ai-enabled:hover svg {
+    opacity: 0.8;
+}
+#ai-on {
+    display: none;
+    -webkit-filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
+    filter: drop-shadow( 0px 0px 4px rgba(0, 255, 0, .7));
+}
+#ai-off {
+    display: none;
+}
+#ai-enabled[ai="on"] #ai-on {
+    display: inline-block;
+}
+#ai-enabled[ai="off"] #ai-off {
+    display: inline-block;
 }
 
 #ai-thinking-indicator {
