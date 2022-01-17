@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const _auto_cam_input = document.querySelector("#auto-cam");
     const _ai_enabled_input = document.querySelector("#ai-enabled");
     const _ai_level_input = document.querySelector("#ai-level");
+    const _undo_button = document.querySelector("#undo-button");
     const _new_game_button = document.querySelector("#new-game");
     const _volume_button = document.querySelector("#sound");
     const _fullscreen_button = document.querySelector("#fullscreen");
@@ -166,6 +167,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // Sound settings
         _sound_on = getCookie('sound_on') === "true";
         _volume_button.setAttribute('snd', _sound_on ? 'on' : 'off');
+
+        // Undo button is disabled by default
+        _undo_button.setAttribute('disabled', 'true');
     }
 
     function get_mouse_pos(canvas, evt) {
@@ -251,22 +255,21 @@ document.addEventListener("DOMContentLoaded", function() {
         // Event when AI checkbox is changed
         _ai_enabled_input.addEventListener('click', on_ai_enabled_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
+        _undo_button.addEventListener('click', chessboard.undo_game);
         _new_game_button.addEventListener('click', restart_new_game);
+        _load_button.addEventListener("click", load_game);
+        _save_button.addEventListener("click", save_game);
         _volume_button.addEventListener("click", toggle_sound);
         _fullscreen_button.addEventListener("click", toggle_fullscreen);
-        _save_button.addEventListener("click", save_game);
-        _load_button.addEventListener("click", load_game);
 
-        function save_game() {
-            const now = new Date();
-            const dt_suffix = now.getFullYear() + '-'
-                            + (now.getMonth()+1).toString().padStart(2,'0') + '-'
-                            + now.getDate().toString().padStart(2,'0')
-                            + '_'
-                            + now.getHours().toString().padStart(2,'0') + '-'
-                            + now.getMinutes().toString().padStart(2,'0') + '-'
-                            + now.getSeconds().toString().padStart(2,'0');
-            downloadContent('chess-savegame_' + dt_suffix + '.chess-sav', chessboard.get_board_pgn());
+        function restart_new_game() {
+            if (confirm("Are you sure you want to start a new game?")) {
+                _phys_forced = false;
+                scene.reset(500.0);
+                chessboard.force_phycics(false);
+                setTimeout(chessboard.reset_game, 600.0);
+                hide_notify();
+            }
         }
 
         function load_game() {
@@ -286,6 +289,18 @@ document.addEventListener("DOMContentLoaded", function() {
                         : "Unable to restore the saved game", 2000.0
                 );
             });
+        }
+
+        function save_game() {
+            const now = new Date();
+            const dt_suffix = now.getFullYear() + '-'
+                            + (now.getMonth()+1).toString().padStart(2,'0') + '-'
+                            + now.getDate().toString().padStart(2,'0')
+                            + '_'
+                            + now.getHours().toString().padStart(2,'0') + '-'
+                            + now.getMinutes().toString().padStart(2,'0') + '-'
+                            + now.getSeconds().toString().padStart(2,'0');
+            downloadContent('chess-savegame_' + dt_suffix + '.chess-sav', chessboard.get_board_pgn());
         }
 
         function on_ai_enabled_changed() {
@@ -310,10 +325,13 @@ document.addEventListener("DOMContentLoaded", function() {
             _ai_enabled_input.setAttribute('ai', _ai_on ? 'on' : 'off');
         }
 
+        // Initialize AI according to GUI
+        on_ai_config_changed();
+
         function toggle_fullscreen(){
             _fullscreen_on = !_fullscreen_on;
             _fullscreen_button.setAttribute('fsc', _fullscreen_on ? 'on' : 'off');
-            if(_fullscreen_on){
+            if (_fullscreen_on) {
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
                 } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
@@ -322,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.documentElement.msRequestFullscreen();
                 }
             }
-            else{
+            else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.webkitExitFullscreen) { /* Safari */
@@ -330,20 +348,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else if (document.msExitFullscreen) { /* IE11 */
                     document.msExitFullscreen();
                 }
-            }
-           
-        }
-
-        // Initialize AI according to GUI
-        on_ai_config_changed();
-
-        function restart_new_game() {
-            if (confirm("Are you sure you want to start a new game?")) {
-                _phys_forced = false;
-                scene.reset(500.0);
-                chessboard.force_phycics(false);
-                setTimeout(chessboard.reset_game, 600.0);
-                hide_notify();
             }
         }
 
@@ -438,6 +442,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 }, 1000.0);
             }
 
+            // If we can undo -> unlock undo button
+            if (chessboard.get_moves_history().length > 0) {
+                _undo_button.removeAttribute('disabled');
+            }
+            else {
+                _undo_button.setAttribute('disabled', 'true');
+            }
+
+            // Send game event to scene
             scene.on_game_event(event);
         }
 

@@ -117,6 +117,13 @@ input[type="checkbox"] {
     max-width: 30px;
     min-width: 30px;
 }
+.topbar-icon:hover svg {
+    opacity: 0.8;
+}
+.topbar-icon[disabled] svg {
+    opacity: 1.0;
+    color: gray;
+}
 
 .center-box {
     min-width: 0 !important;
@@ -126,10 +133,6 @@ input[type="checkbox"] {
 
 div#auto-cam {
     margin-right: 2px;
-}
-
-div#auto-cam:hover svg {
-    opacity: 0.8;
 }
 
 svg.cam-on {
@@ -150,14 +153,6 @@ svg.cam-on {
 
 #auto-cam[auto-cam='off'] .cam-off {
     display: inline-block;
-}
-
-div#ai-enabled {
-
-}
-
-div#ai-enabled:hover svg {
-    opacity: 0.8;
 }
 
 svg.ai-on {
@@ -188,27 +183,6 @@ svg.ai-on {
     width: fit-content !important;
 }
 
-div#load {
-
-}
-
-div#load:hover svg {
-    opacity: 0.8;
-}
-
-div#save {
-
-}
-div#save:hover svg {
-    opacity: 0.8;
-}
-
-div#sound {
-
-}
-div#sound:hover svg {
-    opacity: 0.8;
-}
 .snd-on {
     display: none;
 }
@@ -222,12 +196,6 @@ div#sound:hover svg {
     display: inline-block;
 }
 
-div#fullscreen {
-
-}
-div#fullscreen:hover svg{
-    opacity: 0.8;
-}
 .fsc-on {
     display: none;
 }
@@ -306,10 +274,6 @@ div#info_overlay {
     transition: opacity 0.2s ease-in 0.5s, visibility 0.7s;
 }
 
-div#info:hover svg {
-    opacity: 0.8;
-}
-
 div#info:hover div#info_overlay {
     display: block;
     visibility: visible;
@@ -317,14 +281,11 @@ div#info:hover div#info_overlay {
     transition: opacity 0.2s ease-in, visibility 0.2s;
 }
 
-div#scene {
-
-}
-div#scene:hover {
-    opacity: 0.8;
-}
-div#scene.active {
+div#scene.active svg {
     opacity: 0.6;
+}
+div#scene.active .tooltiptext {
+    display: none;
 }
 
 div#scenes-panel {
@@ -375,15 +336,6 @@ div#scenes-panel.shown .scene-item {
 .scene-item img {
     width: 100%;
     box-shadow: 0 0 5px black;
-}
-
-
-div#new-game {
-
-}
-
-div#new-game:hover svg {
-    opacity: 0.8;
 }
 
 #ai-thinking-indicator {
