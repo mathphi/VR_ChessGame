@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Auto-cam On
     let _auto_cam_on = false;
 
-    //AI On
+    // AI On
     let _ai_on = true;
 
     // Fullscreen
@@ -147,7 +147,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // Initialize UI according to cookies
 
         // Selected scene settings
-        _selected_scene = getCookie('selected_scene');
+        const cookie_select_scene = getCookie('selected_scene');
+        // Keep default value if cookie not set
+        _selected_scene = cookie_select_scene !== false ? cookie_select_scene : _selected_scene;
         _scene_changed = getCookie('scene_changed');
         eraseCookie('scene_changed');   // This cookie must be destroyed after use
 
@@ -156,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
         _auto_cam_input.setAttribute('auto-cam', _auto_cam_on ? 'on' : 'off');
 
         // AI settings
-        _ai_on = getCookie('ai_enabled') === "true";
+        _ai_on = getCookie('ai_enabled') !== "false";
         _ai_enabled_input.setAttribute('ai', _ai_on ? 'on' : 'off');
         const c_ai_level = getCookie('ai_level');
         _ai_level_input.value = (c_ai_level !== false ? c_ai_level : '1');

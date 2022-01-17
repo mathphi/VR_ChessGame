@@ -184,7 +184,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         // Positioning of the objects
         glass_obj.anim_to_position(glMatrix.vec3.fromValues(-10.0, 1.0, 18.0), anim_duration);
         table_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -5.0, 0.0), anim_duration);
-        lamp_obj_1.anim_to_position(glMatrix.vec3.fromValues(-65.0, 10.0, 0.0), anim_duration);
+        lamp_obj_1.anim_to_position(glMatrix.vec3.fromValues(-69.0, 10.0, 0.0), anim_duration);
         lamp_obj_2.anim_to_position(glMatrix.vec3.fromValues(0.0, 10.0, -115.0), anim_duration);
         lamp_obj_3.anim_to_position(glMatrix.vec3.fromValues(0.0, 10.0, 115.0), anim_duration);
         lamp_table_obj.anim_to_position(glMatrix.vec3.fromValues(10.0, -5.0, 15.0), anim_duration);
@@ -197,6 +197,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         walls_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -37.0, 0.0), anim_duration);
         ground_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -37.0, 0.0), anim_duration);
         ceiling_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, 47.0, 0.0), anim_duration);
+
         // Positioning of the chessboard
         const chessboard_rotation = glMatrix.quat.create();
         glMatrix.quat.rotateY(chessboard_rotation, chessboard_rotation, Math.PI / 2.0);
@@ -316,6 +317,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         ch_clk_hand_r_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
         ch_clk_sec_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
         ch_clk_sec_hand_r_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        plant_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
     }
 
     function animateGameLost() {
