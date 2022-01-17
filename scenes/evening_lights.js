@@ -168,18 +168,17 @@ async function make_evening_lights_scene(gl, camera, chessboard, physics_engine,
             ch_clk_sec_hand_r_obj.rotate(z_axis, 6*delta_time / (1000*180) * Math.PI);
         }
 
-        // Draw loop
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        // Animate the spotlight
+        // Animate the floor lamp intensity
         const light_int = (
-            Math.sin(2.0 * Math.PI / (3.0 + 0.05*Math.random()) * time/1000.0 ) + 
-            Math.sin(2.0 * Math.PI /10.0 * time/1000.0 )
-            ) / 2.0;
-            
+            Math.sin(2.0 * Math.PI / 0.3 * time/1000.0) +
+            Math.sin(2.0 * Math.PI / 0.7 * time/1000.0) +
+            Math.sin(2.0 * Math.PI / 2.0 * time/1000.0) +
+            Math.sin(2.0 * Math.PI / 3.0 * time/1000.0) +
+            Math.sin(2.0 * Math.PI / 5.0 * time/1000.0)
+        ) / 5.0;
+
         light_set.set_light_color(orange_pl, 
-            glMatrix.vec3.fromValues(5.0 + light_int, 2.5+0.5*light_int, 0.0)
+            glMatrix.vec3.fromValues(5.0 + 0.6*light_int, 2.5+0.3*light_int, 0.0)
         );
     }
 

@@ -696,6 +696,10 @@ document.addEventListener("DOMContentLoaded", function() {
             // Update the particles
             particle_engine.update(delta_time / 1000.0);
 
+            // Reset the viewport
+            gl.clearColor(0.2, 0.2, 0.2, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
             /***********************
              **   Common shader   **
              ***********************/

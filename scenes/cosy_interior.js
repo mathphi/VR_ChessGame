@@ -266,10 +266,6 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
             ch_clk_hand_r_obj.rotate(z_axis, 6*delta_time / (60*1000*180)  * Math.PI);
             ch_clk_sec_hand_r_obj.rotate(z_axis, 6*delta_time / (1000*180) * Math.PI);
         }
-
-        // Draw loop
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
     function draw_cubemap(shader){
