@@ -29,6 +29,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const walls_tex = await load_texture(gl, 'textures/brick_walls_tex.jpg', false);
     const ground_tex = await load_texture(gl, 'textures/floor_tex.jpg', true);
     const door_tex = await load_texture(gl, 'textures/door_tex.jpg', false);
+    const frame_tex = await load_texture(gl, 'textures/frame.jpg', false);
 
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.jpg', true);
@@ -66,6 +67,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const ground_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
     const ceiling_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
     const door_mesh = await load_mesh('objects/misc/door.obj', true, 0.35);
+    const frame_mesh = await load_mesh('objects/misc/frame.obj', true, 1.0);
 
     // Make the buffer and the functions to draw the objects
     const glass_obj = make_object(gl, glass_mesh);
@@ -84,11 +86,12 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const ceiling_obj = make_object(gl, ceiling_mesh, null, ceiling_bm, ceiling_material);
     const ground_obj = make_object(gl, ground_mesh, ground_tex, ground_bm, floor_material);
     const door_obj = make_object(gl, door_mesh, door_tex, door_bm);
+    const frame_obj = make_object(gl, frame_mesh, frame_tex, null);
 
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_mesh('objects/collision_boxes/c_ch_clock.obj', false);
     const c_lamp_table_mesh = await load_mesh('objects/collision_boxes/c_lamp_table.obj', false);
-    
+
     // LIGHTS
     // Point Lights
     const orange_pl_1 = light_set.add_point_light(
@@ -126,7 +129,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     physics_engine.register_object(lamp_table_obj, 0.0, c_lamp_table_mesh);
     physics_engine.register_object(plant_obj, 0.0);
     //physics_engine.register_object(ground_obj, 0.0);
-
+    physics_engine.register_object(frame_obj, 0.0);
 
     // Define specific materials for chess pieces in this scene
     const _piece_white_material = make_material(
@@ -203,6 +206,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         ground_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -37.0, 0.0), anim_duration);
         ceiling_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, 47.0, 0.0), anim_duration);
         door_obj.anim_to_position(glMatrix.vec3.fromValues(-68.0, -37.0, 60.0), anim_duration);
+        frame_obj.anim_to_position(glMatrix.vec3.fromValues(-69.0, 0.0, -60.0), anim_duration);
 
         // Positioning of the chessboard
         const chessboard_rotation = glMatrix.quat.create();
@@ -230,6 +234,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         lamp_obj_2.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), 0);
         lamp_obj_3.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), -Math.PI);
         door_obj.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), Math.PI/2);
+        plant_obj.anim_to_rotation(zero_rotation, anim_duration);
 
         // Reset physics
         force_physics(false);
@@ -300,6 +305,8 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         ground_obj.draw(shader);
         ceiling_obj.draw(shader);
         door_obj.draw(shader);
+        frame_obj.draw(shader);
+        glass_obj.draw(shader);
     }
 
     function force_physics(force) {
@@ -312,6 +319,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
             ch_clk_sec_hand_l_obj.reset_physics_motion();
             ch_clk_sec_hand_r_obj.reset_physics_motion();
             plant_obj.reset_physics_motion();
+            frame_obj.reset_physics_motion();
         }
 
         table_obj.get_physics_body().set_mass(0.0);
@@ -322,6 +330,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         ch_clk_sec_hand_l_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
         ch_clk_sec_hand_r_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
         plant_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
+        frame_obj.get_physics_body().set_mass(force ? 0.1 : 0.0);
     }
 
     function animateGameLost() {
