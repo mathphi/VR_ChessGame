@@ -28,13 +28,17 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const plant_tex = await load_texture(gl, 'textures/plant_tex.jpg', true);
     const walls_tex = await load_texture(gl, 'textures/brick_walls_tex.jpg', false);
     const ground_tex = await load_texture(gl, 'textures/floor_tex.jpg', true);
+    const door_tex = await load_texture(gl, 'textures/door_tex.jpg', false);
+
     // BUMP MAPS
     const table_bm = await load_texture(gl, 'textures/WoodBumpMap.jpg', true);
     const lamp_table_bm = await load_texture(gl, 'textures/lamp_table_bm.jpg', true);
     const plant_bm = await load_texture(gl, 'textures/plant_bm.jpg', true);
     const walls_bm = await load_texture(gl, 'textures/brick_walls_bm.jpg', true);
     const ground_bm = await load_texture(gl, 'textures/floor_bm.jpg', true);
-    const ceiling_bm = await load_texture(gl, 'textures/ceiling_bm.jpg', true)
+    const ceiling_bm = await load_texture(gl, 'textures/ceiling_bm.jpg', true);
+    const door_bm = await load_texture(gl, 'textures/door_bm.jpg', false);
+
     // MATERIALS
     const floor_material = make_material(
         'floor',
@@ -61,6 +65,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const walls_mesh = await load_mesh('objects/misc/walls.obj', true, 1.0);
     const ground_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
     const ceiling_mesh = await load_mesh('objects/misc/ground_plane.obj', true);
+    const door_mesh = await load_mesh('objects/misc/door.obj', true, 0.35);
 
     // Make the buffer and the functions to draw the objects
     const glass_obj = make_object(gl, glass_mesh);
@@ -78,7 +83,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     const walls_obj = make_object(gl, walls_mesh, walls_tex, walls_bm);
     const ceiling_obj = make_object(gl, ceiling_mesh, null, ceiling_bm, ceiling_material);
     const ground_obj = make_object(gl, ground_mesh, ground_tex, ground_bm, floor_material);
-
+    const door_obj = make_object(gl, door_mesh, door_tex, door_bm);
 
     // COLLISION BOXES
     const c_ch_clk_mesh = await load_mesh('objects/collision_boxes/c_ch_clock.obj', false);
@@ -197,6 +202,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         walls_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -37.0, 0.0), anim_duration);
         ground_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, -37.0, 0.0), anim_duration);
         ceiling_obj.anim_to_position(glMatrix.vec3.fromValues(0.0, 47.0, 0.0), anim_duration);
+        door_obj.anim_to_position(glMatrix.vec3.fromValues(-68.0, -37.0, 60.0), anim_duration);
 
         // Positioning of the chessboard
         const chessboard_rotation = glMatrix.quat.create();
@@ -223,6 +229,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         lamp_obj_1.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), Math.PI/2);
         lamp_obj_2.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), 0);
         lamp_obj_3.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), -Math.PI);
+        door_obj.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), Math.PI/2);
 
         // Reset physics
         force_physics(false);
@@ -292,6 +299,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         walls_obj.draw(shader);
         ground_obj.draw(shader);
         ceiling_obj.draw(shader);
+        door_obj.draw(shader);
     }
 
     function force_physics(force) {
