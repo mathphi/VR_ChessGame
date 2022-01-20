@@ -6,6 +6,7 @@
     <title>3D ChessGame - VR Project</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/modal-dialog.css" />
 </head>
 <body>
 <canvas id="webgl_canvas" width="800" height="600"></canvas>
@@ -148,6 +149,20 @@
 </div>
 <div id="canvas_overlay" hidden>
     <span id="notify_text"></span>
+</div>
+<div id="modal-dialog" class="modal">
+    <div class="dialog-box">
+        <div class="modal-header">
+            <h2 class="title">Modal title</h2>
+        </div>
+        <div class="modal-body">
+            <p>Test</p>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-button button-yes">Yes</div>
+            <div class="modal-button button-no">No</div>
+        </div>
+    </div>
 </div>
 <div id="page-loader-overlay">
     <div class="loader"></div>

@@ -165,6 +165,33 @@ document.addEventListener("DOMContentLoaded", function() {
         );
     }
 
+    function modal_dialog_confirm(title, message, callback_yes = null, callback_no = null) {
+        // Get the modal
+        const elem_modal = document.getElementById("modal-dialog");
+        const elem_title = elem_modal.querySelector(".title");
+        const elem_body  = elem_modal.querySelector(".modal-body");
+
+        // Get the buttons
+        const yes_btn   = elem_modal.querySelector(".button-yes");
+        const no_btn    = elem_modal.querySelector(".button-no");
+
+        // Setup content
+        elem_title.innerHTML = title;
+        elem_body.innerHTML  = message;
+
+        // Show the modal dialog
+        elem_modal.classList.add("shown");
+
+        yes_btn.onclick = function () {
+            elem_modal.classList.remove("shown");
+            if (typeof(callback_yes) === 'function') callback_yes();
+        };
+        no_btn.onclick = function () {
+            elem_modal.classList.remove("shown");
+            if (typeof(callback_no) === 'function') callback_no();
+        };
+    }
+
     async function main() {
         // Initialize UI
         init_ui();
@@ -239,21 +266,31 @@ document.addEventListener("DOMContentLoaded", function() {
         // Event when AI checkbox is changed
         _ai_enabled_input.addEventListener('click', on_ai_enabled_changed);
         _ai_level_input.addEventListener('change', on_ai_config_changed);
-        _undo_button.addEventListener('click', chessboard.undo_game);
+        _undo_button.addEventListener('click', on_undo_game_action);
         _new_game_button.addEventListener('click', restart_new_game);
         _load_button.addEventListener("click", load_game);
         _save_button.addEventListener("click", save_game);
         _volume_button.addEventListener("click", toggle_sound);
         _fullscreen_button.addEventListener("click", toggle_fullscreen);
 
+        function on_undo_game_action() {
+            chessboard.undo_game();
+            hide_notify();
+        }
+
         function restart_new_game() {
-            if (confirm("Are you sure you want to start a new game?")) {
-                _phys_forced = false;
-                scene.reset(500.0);
-                chessboard.force_phycics(false);
-                setTimeout(chessboard.reset_game, 600.0);
-                hide_notify();
-            }
+            modal_dialog_confirm(
+                "Start a new game",
+                "<p>Are you sure you want to start a new game?</p>" +
+                "<p>The current game will be lost</p>",
+                function () {
+                    _phys_forced = false;
+                    scene.reset(500.0);
+                    chessboard.force_phycics(false);
+                    setTimeout(chessboard.reset_game, 600.0);
+                    hide_notify();
+                }
+            );
         }
 
         function load_game() {
@@ -312,9 +349,8 @@ document.addEventListener("DOMContentLoaded", function() {
         // Initialize AI according to GUI
         on_ai_config_changed();
 
-        function toggle_fullscreen(){
+        function toggle_fullscreen() {
             _fullscreen_on = !_fullscreen_on;
-            _fullscreen_button.setAttribute('fsc', _fullscreen_on ? 'on' : 'off');
             if (_fullscreen_on) {
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
@@ -334,6 +370,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         }
+
+        document.addEventListener("fullscreenchange", function (event) {
+            _fullscreen_on = !!document.fullscreenElement;
+            _fullscreen_button.setAttribute('fsc', _fullscreen_on ? 'on' : 'off');
+
+            if (!_fullscreen_on)
+                event.preventDefault();
+        });
 
         function toggle_sound() {
             _sound_on = !_sound_on;
@@ -560,6 +604,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 case "Escape":
                     hide_notify(200.0);
                     break;
+                case "F11":
+                    toggle_fullscreen();
+                    event.preventDefault();
+                    break;
                 case 'p':
                     if (event.ctrlKey) {
                         event.preventDefault();
@@ -574,8 +622,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (event.ctrlKey) {
                         event.preventDefault();
                         // Crtl+Z -> undo last action
-                        chessboard.undo_game();
-                        hide_notify();
+                        on_undo_game_action();
                     } else {
                         if (_phys_forced) {
                             scene.table.rotate(z_axis, -5.0 * Math.PI / 180.0);
@@ -607,21 +654,25 @@ document.addEventListener("DOMContentLoaded", function() {
                         const saved_game = getCookie('last-savegame-pgn');
 
                         if (saved_game !== false) {
-                            if (confirm("Are you sure you want to restore the last saved game?")) {
-                                const prev_game = chessboard.get_board_pgn();
-                                const validated = chessboard.load_board_pgn(saved_game);
+                            modal_dialog_confirm(
+                                "Restore saved game",
+                                "<p>Are you sure you want to restore the last saved game?</p>",
+                                function () {
+                                    const prev_game = chessboard.get_board_pgn();
+                                    const validated = chessboard.load_board_pgn(saved_game);
 
-                                // Restore previous game if it was invalid
-                                if (!validated) {
-                                    chessboard.load_board_pgn(prev_game);
+                                    // Restore previous game if it was invalid
+                                    if (!validated) {
+                                        chessboard.load_board_pgn(prev_game);
+                                    }
+
+                                    show_notify(
+                                        validated
+                                            ? "Saved game successfully restored"
+                                            : "Unable to restore the saved game", 2000.0
+                                    );
                                 }
-
-                                show_notify(
-                                    validated
-                                        ? "Saved game successfully restored"
-                                        : "Unable to restore the saved game", 2000.0
-                                );
-                            }
+                            );
                         } else {
                             show_notify("No saved game to restore", 2000.0);
                         }
