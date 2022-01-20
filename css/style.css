@@ -32,13 +32,18 @@ kbd {
 }
 #top-bar {
     position: relative;
-    padding: 10px;
+    padding: 0 10px;
     top: 0;
     left: 0;
     right: 0;
     background-color: rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     text-align: center;
+    line-height: 40px;
+}
+#top-bar:after {
+    content: "";
+    display: block;
 }
 
 #top-bar div {
@@ -48,6 +53,14 @@ kbd {
     text-shadow: black 0 0 10px;
     margin: 0;
     text-align: center;
+    vertical-align: middle;
+}
+
+#top-bar div * {
+    line-height: normal;
+}
+#top-bar span {
+    line-height: normal;
 }
 
 .left-box {
@@ -58,55 +71,21 @@ kbd {
 }
 
 div#fps {
-    width: 100px;
+    width: 80px;
     text-align: left;
     margin-left: 5px;
     margin-right: 5px;
 }
 
 div#elapsed {
-    width: 150px;
+    min-width: 120px;
     text-align: left;
     margin-left: 5px;
     margin-right: 5px;
 }
 
-#page-loader-overlay {
-    position: absolute;
-    margin: auto;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: white;
-}
-
 input[type="checkbox"] {
     vertical-align: middle;
-}
-
-#canvas_overlay {
-    position: absolute;
-    margin: auto;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: fit-content;
-    height: fit-content;
-    min-width: 20%;
-    max-width: 60%;
-    max-height: 50%;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.75);
-    border-radius: 10px;
-    text-align: center;
-    vertical-align: middle;
-}
-
-#notify_text {
-    font-weight: bold;
-    font-size: 20pt;
 }
 
 .topbar-icon {
@@ -116,6 +95,10 @@ input[type="checkbox"] {
     width: 30px;
     max-width: 30px;
     min-width: 30px;
+}
+.topbar-icon svg {
+    display: block;
+    margin: 0 auto;
 }
 .topbar-icon:hover svg {
     opacity: 0.8;
@@ -141,18 +124,18 @@ svg.cam-on {
 }
 
 .cam-on {
-    display: none;
+    display: none !important;
 }
 .cam-off {
-    display: none;
+    display: none !important;
 }
 
 #auto-cam[auto-cam='on'] .cam-on {
-    display: inline-block;
+    display: block !important;
 }
 
 #auto-cam[auto-cam='off'] .cam-off {
-    display: inline-block;
+    display: block !important;
 }
 
 svg.ai-on {
@@ -161,18 +144,18 @@ svg.ai-on {
 }
 
 .ai-on {
-    display: none;
+    display: none !important;
 }
 .ai-off {
-    display: none;
+    display: none !important;
 }
 
 #ai-enabled[ai="on"] .ai-on {
-    display: inline-block;
+    display: block !important;
 }
 
 #ai-enabled[ai="off"] .ai-off {
-    display: inline-block;
+    display: block !important;
 }
 
 
@@ -184,29 +167,29 @@ svg.ai-on {
 }
 
 .snd-on {
-    display: none;
+    display: none !important;
 }
 .snd-off {
-    display: none;
+    display: none !important;
 }
 #sound[snd="on"] .snd-on {
-    display: inline-block;
+    display: block !important;
 }
 #sound[snd="off"] .snd-off {
-    display: inline-block;
+    display: block !important;
 }
 
 .fsc-on {
-    display: none;
+    display: none !important;
 }
 .fsc-off {
-    display: none;
+    display: none !important;
 }
 #fullscreen[fsc="on"] .fsc-on {
-    display: inline-block;
+    display: block !important;
 }
 #fullscreen[fsc="off"] .fsc-off {
-    display: inline-block;
+    display: block !important;
 }
 
 .tooltip {
@@ -223,8 +206,9 @@ svg.ai-on {
     border-radius: 6px;
     padding: 5px 0;
     position: absolute;
+    line-height: normal;
     z-index: 1;
-    bottom: -250%;
+    bottom: -40px;
     left: 50%;
     margin-left: -65px;
     opacity: 0;
@@ -289,6 +273,7 @@ div#scene.active .tooltiptext {
 }
 
 div#scenes-panel {
+    clear: both;
     position: relative;
     min-height: 100vh;
     top: 0;
@@ -338,6 +323,30 @@ div#scenes-panel.shown .scene-item {
     box-shadow: 0 0 5px black;
 }
 
+#canvas_overlay {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: fit-content;
+    height: fit-content;
+    min-width: 20%;
+    max-width: 60%;
+    max-height: 50%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#notify_text {
+    font-weight: bold;
+    font-size: 20pt;
+}
+
 #ai-thinking-indicator {
     position: absolute;
     top: 80px;
@@ -363,6 +372,15 @@ div#scenes-panel.shown .scene-item {
     100% { color: white; }
 }
 
+#page-loader-overlay {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+}
 .loader {
     position: absolute;
     margin: auto;
@@ -380,4 +398,19 @@ div#scenes-panel.shown .scene-item {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/*
+ * Changes for mobile
+ */
+@media screen and (max-width: 700px) {
+    .center-box {
+        float: right;
+    }
+    .right-box {
+        float: unset;
+    }
+    div#info {
+        display: none;
+    }
 }
