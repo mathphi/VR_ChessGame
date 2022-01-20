@@ -190,6 +190,12 @@ document.addEventListener("DOMContentLoaded", function() {
             elem_modal.classList.remove("shown");
             if (typeof(callback_no) === 'function') callback_no();
         };
+
+        // Terrible hack to make focus is on the button...
+        setTimeout(function() {
+            // Focus on the yes button by default
+            yes_btn.focus();
+        }, 100);
     }
 
     async function main() {
@@ -211,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // FAR AND NEAR PLANE FOR DEPTH TESTING
         const near_plane = 0.01;
-        const far_plane = 200.0;
+        const far_plane = 250.0;
 
         // PHYSICS ENGINE
         const physics_engine = setupPhysics();

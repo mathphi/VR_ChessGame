@@ -235,6 +235,8 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
         lamp_obj_3.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), -Math.PI);
         door_obj.set_rotation(glMatrix.vec3.fromValues(0.0, 1.0, 0.0), Math.PI/2);
         plant_obj.anim_to_rotation(zero_rotation, anim_duration);
+        frame_obj.anim_to_rotation(zero_rotation, anim_duration);
+
 
         // Reset physics
         force_physics(false);

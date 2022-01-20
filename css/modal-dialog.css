@@ -60,8 +60,12 @@
     padding: 8px;
     text-align: center;
     margin: 0 4px;
+    border: none;
+    font: inherit;
+    color: white;
 }
-.modal-button:hover {
+.modal-button:hover,
+.modal-button:focus {
     background-color: #68d368;
 }
 .modal-button:active {
