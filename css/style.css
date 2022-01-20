@@ -413,4 +413,7 @@ div#scenes-panel.shown .scene-item {
     div#info {
         display: none;
     }
+    #ai-thinking-indicator {
+        top: 100px;
+    }
 }
