@@ -718,8 +718,6 @@ document.addEventListener("DOMContentLoaded", function() {
         // Remove the page loader overlay
         _page_loader_overlay.hidden = true;
 
-        show_game_won('w');
-
         // Call it once to ensure good size after everything is loaded
         onWindowResize();
 
