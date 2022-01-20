@@ -346,6 +346,9 @@ div#scenes-panel.shown .scene-item {
     font-weight: bold;
     font-size: 20pt;
 }
+.text-large {
+    font-size: 36pt;
+}
 
 #ai-thinking-indicator {
     position: absolute;
@@ -415,5 +418,11 @@ div#scenes-panel.shown .scene-item {
     }
     #ai-thinking-indicator {
         top: 100px;
+    }
+    #canvas_overlay {
+        max-width: 80%;
+    }
+    .text-large {
+        font-size: 32pt;
     }
 }

@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function show_game_won(winner) {
         show_notify(
-            `<span style="font-size: 36pt;">` +
+            `<span class="text-large">` +
             `${winner === 'w' ? "White" : "Black"} pieces won!` +
             `</span>`,
             -1
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function show_game_lost() {
         show_notify(
-            `<span style="font-size: 36pt;">` +
+            `<span class="text-large">` +
             `You lost!` +
             `</span>`,
             -1
@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function show_game_draw() {
         show_notify(
-            `<span style="font-size: 36pt;">Draw!</span>`,
+            `<span class="text-large">Draw!</span>`,
             -1
         );
     }
@@ -717,6 +717,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Remove the page loader overlay
         _page_loader_overlay.hidden = true;
+
+        show_game_won('w');
 
         // Call it once to ensure good size after everything is loaded
         onWindowResize();
