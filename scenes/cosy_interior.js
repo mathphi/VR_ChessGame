@@ -128,7 +128,7 @@ async function make_cosy_interior_scene(gl, camera, chessboard, physics_engine, 
     physics_engine.register_object(ch_clk_sec_hand_r_obj, 0.0);
     physics_engine.register_object(lamp_table_obj, 0.0, c_lamp_table_mesh);
     physics_engine.register_object(plant_obj, 0.0);
-    //physics_engine.register_object(ground_obj, 0.0);
+    physics_engine.register_object(ground_obj, 0.0);
     physics_engine.register_object(frame_obj, 0.0);
 
     // Define specific materials for chess pieces in this scene
