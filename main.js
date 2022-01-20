@@ -6,10 +6,6 @@ const MouseButtons = {
     MIDDLE: 4
 }
 
-// Hyper-global variables
-let _mouse_action_button = MouseButtons.LEFT;
-let _mouse_view_button = MouseButtons.RIGHT;
-
 document.addEventListener("DOMContentLoaded", function() {
     // Prevent right-click context menu on the whole page
     document.addEventListener('contextmenu', event => event.preventDefault());
@@ -130,18 +126,6 @@ document.addEventListener("DOMContentLoaded", function() {
             `<span style="font-size: 36pt;">Draw!</span>`,
             -1
         );
-    }
-
-    function toggle_mouse_buttons() {
-        if (_mouse_action_button === MouseButtons.LEFT) {
-            _mouse_action_button = MouseButtons.RIGHT;
-            _mouse_view_button = MouseButtons.LEFT;
-        } else {
-            _mouse_action_button = MouseButtons.LEFT;
-            _mouse_view_button = MouseButtons.RIGHT;
-        }
-
-        show_notify("Mouse buttons inverted", 2000.0);
     }
 
     function init_ui() {
@@ -483,7 +467,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // MOUSE EVENTS
+        let mouse_moved = false;
         function on_mouse_event(event) {
+            // Initialize mouse state management
+            if (event.type === "mousedown") {
+                mouse_moved = false;
+            }
+            else if (event.type === "mousemove") {
+                mouse_moved = true;
+            }
+
             // Compute the picking ray from mouse cursor
             const picking_ray = camera.get_picking_ray(
                 get_mouse_pos(canvas, event),
@@ -500,7 +493,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const picked_point = picking_result.get_m_hitPointWorld();
 
                 // If this event was fired by a mousedown event and action button is pressed
-                if (event.buttons & _mouse_action_button && event.type === "mousedown") {
+                if (event.type === "mouseup" && !mouse_moved) {
                     // If ctrl key is not pressed
                     if (!event.ctrlKey) {
                         // If the picked object comes from the chessboard
@@ -555,6 +548,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         canvas.addEventListener("mousedown", on_mouse_event);
         canvas.addEventListener("mousemove", on_mouse_event);
+        canvas.addEventListener("mouseup", on_mouse_event);
 
         // KEYBOARD EVENTS
         let _phys_forced = false;
@@ -654,13 +648,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (event.ctrlKey) {
                         event.preventDefault();
                         restart_new_game();
-                    }
-                    break;
-                case 'm':
-                    // CTRL + M -> invert mouse buttons
-                    if (event.ctrlKey) {
-                        event.preventDefault();
-                        toggle_mouse_buttons();
                     }
                     break;
                 default:
@@ -778,7 +765,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         function timeToHuman(time) {
-            t_sec = time / 1000.0;
+            let t_sec = time / 1000.0;
             const sec = Math.floor(t_sec % 60);
             t_sec /= 60.0;
             const min = Math.floor(t_sec % 60);
